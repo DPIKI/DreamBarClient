@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">DreamClient</string>
+    <string name="s_newOrder">Новый заказ</string>
+</resources>
