@@ -20,4 +20,9 @@ public class General extends AppCompatActivity {
         Intent intent = new Intent(this, Debug.class);
         startActivity(intent);
     }
+
+    public void onClickMenu(View v) {
+        Intent intent = new Intent(this, MenuCategoryView.class);
+        startActivity(intent);
+    }
 }

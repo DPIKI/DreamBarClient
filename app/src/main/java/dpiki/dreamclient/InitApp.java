@@ -11,5 +11,11 @@ public class InitApp extends Application {
     public void onCreate() {
         super.onCreate();
         Singletone.InitInstance();
+        // Debug
+        Singletone.menu.add(new MenuEntry(1, "name1", "category1"));
+        Singletone.menu.add(new MenuEntry(1, "name2", "category1"));
+        Singletone.menu.add(new MenuEntry(1, "name1", "category2"));
+        Singletone.menu.add(new MenuEntry(1, "name2", "category2"));
+        // Debug
     }
 }

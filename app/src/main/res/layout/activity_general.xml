@@ -28,5 +28,12 @@
             android:onClick="onClickDebug"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/b_menu"
+            android:text="Menu"
+            android:onClick="onClickMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </RelativeLayout>
