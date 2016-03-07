@@ -1,6 +1,5 @@
 package dpiki.dreamclient;
 
-import android.app.Application;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;

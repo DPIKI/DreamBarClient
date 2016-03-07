@@ -6,9 +6,6 @@ import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.ContactsContract;
-import android.util.Log;
-import android.view.Menu;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -80,8 +77,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static void writeMenuEntries(SQLiteDatabase db, ArrayList<MenuEntry> entries) {
-        Log.d("Info", "Entering");
-
         Iterator<MenuEntry> i = entries.iterator();
         while (i.hasNext()) {
             MenuEntry e = i.next();
@@ -91,16 +86,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(MENU_COLUMN_CATEGORY, e.category);
             db.insertWithOnConflict(MENU_TABLE, "", values, SQLiteDatabase.CONFLICT_IGNORE);
         }
-
-        Log.d("Info", "Exiting");
     }
 
     public static void clearMenu(SQLiteDatabase db) {
-        Log.d("Info", "Entering");
-
         db.execSQL(QUERY_DROP_MENU_TABLE);
         db.execSQL(QUERY_CREATE_MENU_TABLE);
-
-        Log.d("Info", "Exiting");
     }
 }
