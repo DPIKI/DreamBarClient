@@ -12,16 +12,19 @@
 
     <EditText
         android:id="@+id/e_debugId"
+        android:hint="id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/e_debugName"
+        android:hint="name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/e_debugCategory"
+        android:hint="category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -29,6 +32,34 @@
         android:id="@+id/b_debugAddNewItem"
         android:text="Add new item"
         android:onClick="onClickAdd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/b_debugAddToDatabase"
+        android:text="Add new item to database"
+        android:onClick="onClickAddToDatabase"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/b_debugClearDatabase"
+        android:text="Clear database"
+        android:onClick="onClickClearDatabase"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/b_debugFillDatabase"
+        android:text="Fill database"
+        android:onClick="onClickFillDatabase"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/b_debugFetchMenu"
+        android:text="Fetch menu"
+        android:onClick="onClickFetchMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

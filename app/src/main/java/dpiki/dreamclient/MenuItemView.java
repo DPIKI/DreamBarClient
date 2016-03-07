@@ -9,7 +9,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MenuItemView extends AppCompatActivity {
     private String currentCategory;
@@ -26,7 +25,7 @@ public class MenuItemView extends AppCompatActivity {
         TextView textView = (TextView)findViewById(R.id.tw_category);
         textView.setText(currentCategory);
 
-        ArrayList<String> names = Singletone.menuGetItemNames(currentCategory);
+        ArrayList<String> names = Singleton.menuGetItemNames(currentCategory);
         Log.d("MenuItemView.onCreate", Integer.toString(names.size()));
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, names);

@@ -1,5 +1,8 @@
 package dpiki.dreamclient;
 
+import android.app.Application;
+import android.database.sqlite.SQLiteDatabase;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,14 +10,14 @@ import java.util.Iterator;
 /**
  * Created by User on 06.03.2016.
  */
-public class Singletone {
-    private static Singletone singletone;
+public class Singleton {
+    private static Singleton singleton;
 
     public static ArrayList<MenuEntry> menu;
 
     public static void InitInstance() {
-        if (singletone == null) {
-            singletone = new Singletone();
+        if (singleton == null) {
+            singleton = new Singleton();
         }
     }
 
@@ -25,7 +28,7 @@ public class Singletone {
         while (i.hasNext())
             categories.add(i.next().category);
 
-        return new ArrayList<String>(categories);
+        return new ArrayList<>(categories);
     }
 
     public static ArrayList<String> menuGetItemNames(String category) {
@@ -41,11 +44,15 @@ public class Singletone {
         return names;
     }
 
-    public static Singletone getInstance() {
-        return singletone;
+    public static void menuFetch(SQLiteDatabase db) {
+        menu = DatabaseHelper.readMenu(db);
     }
 
-    private Singletone() {
+    public static Singleton getInstance() {
+        return singleton;
+    }
+
+    private Singleton() {
         menu = new ArrayList<>();
     }
 }

@@ -10,7 +10,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MenuCategoryView extends AppCompatActivity {
 
@@ -19,8 +18,8 @@ public class MenuCategoryView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_category_view);
 
-        Singletone singletone = Singletone.getInstance();
-        final ArrayList<String> categories = singletone.menuGetCategories();
+        Singleton singleton = Singleton.getInstance();
+        final ArrayList<String> categories = singleton.menuGetCategories();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, categories);
