@@ -7,5 +7,6 @@ public class NetworkServiceSettings {
     public String ip;
     public int port;
     public Boolean isServiceRunning;
+    public String name;
     public String password;
 }

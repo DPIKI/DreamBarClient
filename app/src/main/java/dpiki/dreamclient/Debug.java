@@ -49,6 +49,9 @@ public class Debug extends Activity {
         registerReceiver(receiver,
                 new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
         Log.d("Debug", "Receiver registered");
+
+        Intent intent = new Intent(this.getApplicationContext(), NetworkService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -58,6 +61,8 @@ public class Debug extends Activity {
         unregisterReceiver(receiver);
         receiver = null;
         Log.d("Debug", "Receiver unregistered");
+
+        unbindService(connection);
     }
 
     public void onClickAdd(View view) {
@@ -125,15 +130,6 @@ public class Debug extends Activity {
         db.close();
     }
 
-    public void onClickStartService(View view) {
-        Intent intent = new Intent(this.getApplicationContext(), NetworkService.class);
-        bindService(intent, connection, BIND_AUTO_CREATE);
-    }
-
-    public void onClickStopService(View view) {
-        unbindService(connection);
-    }
-
     public void onClickConnect(View view) {
         if (isServiceConnected) {
             networkService.connect();
@@ -157,6 +153,8 @@ public class Debug extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             networkService = ((NetworkService.NetworkServiceBinder)service).getServiceInstance();
             isServiceConnected = true;
+            Toast.makeText(Debug.this, "NetworkService.state=" +
+                    Integer.toString(networkService.state()), Toast.LENGTH_SHORT).show();
         }
 
         @Override

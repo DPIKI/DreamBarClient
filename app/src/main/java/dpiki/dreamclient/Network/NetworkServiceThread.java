@@ -1,14 +1,13 @@
 package dpiki.dreamclient.Network;
 
 import android.content.Context;
-import android.net.Network;
 import android.os.Looper;
 
 /**
  * Created by User on 26.03.2016.
  */
 public class NetworkServiceThread extends Thread {
-    public NetworkServiceThreadHandler handler;
+    public NetworkServiceHandler handler;
     public Boolean ready = false;
     Context context;
     NetworkServiceSettings settings;
@@ -20,9 +19,9 @@ public class NetworkServiceThread extends Thread {
 
     @Override
     public void run() {
-        Looper.prepare();
-        handler = new NetworkServiceThreadHandler(context, settings);
+    /*    Looper.prepare();
+        handler = new NetworkServiceHandler(context, settings);
         ready = true;
-        Looper.loop();
+        Looper.loop();*/
     }
 }

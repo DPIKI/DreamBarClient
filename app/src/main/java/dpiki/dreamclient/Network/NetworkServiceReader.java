@@ -11,12 +11,12 @@ import java.net.Socket;
 /**
  * Created by User on 26.03.2016.
  */
-public class NetworkServiceInputThread extends Thread {
+public class NetworkServiceReader extends Thread {
     private Handler handler;
     private Socket socket;
     private DataInputStream is;
 
-    NetworkServiceInputThread(Handler h, Socket s) {
+    public NetworkServiceReader(Handler h, Socket s) {
         handler = h;
         socket = s;
     }
@@ -42,11 +42,8 @@ public class NetworkServiceInputThread extends Thread {
         catch (IOException e) {
             // Если что-то пошло не так говорим что мы отключились
             Message msg1 = handler.obtainMessage();
-            msg1.what = NetworkService.MESSAGE_CONNECTION_LOST;
+            msg1.what = NetworkService.MESSAGE_LOST_CONNECTION;
             handler.sendMessage(msg1);
-
-            // Печатаем лог
-            e.printStackTrace();
         }
         finally {
             is = null;

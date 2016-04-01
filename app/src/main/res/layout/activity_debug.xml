@@ -64,19 +64,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 -->
-    <Button
-        android:id="@+id/b_debugStartService"
-        android:text="Start Service"
-        android:onClick="onClickStartService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/b_debugStopService"
-        android:text="Stop Service"
-        android:onClick="onClickStopService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/b_debugConnect"

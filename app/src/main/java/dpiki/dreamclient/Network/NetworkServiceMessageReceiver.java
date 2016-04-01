@@ -15,30 +15,12 @@ public class NetworkServiceMessageReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        int state = intent.getIntExtra("state", -1);
+        int currState = intent.getIntExtra(NetworkService.INTENT_STATE_CURR, -1);
+        int prevState = intent.getIntExtra(NetworkService.INTENT_STATE_PREV, -1);
+        int reason = intent.getIntExtra(NetworkService.INTENT_STATE_CHANGE_REASON, -1);
 
-        // Поле state не указано (ошибка программы)
-        if (state == -1) {
-            Log.e("Receiver", "state id undefined");
-            return;
-        }
-
-        switch (state) {
-            case NetworkService.STATE_DISCONNECTED:
-                Log.d("Receiver", "STATE_DISCONNECTED");
-                break;
-
-            case NetworkService.STATE_CONNECTED:
-                Log.d("Receiver", "STATE_CONNECTED");
-                break;
-
-            case NetworkService.STATE_AUTHORIZED:
-                Log.d("Receiver", "STATE_AUTHORIZED");
-                break;
-
-            case NetworkService.STATE_SYNCHRONIZED:
-                Log.d("Receiver", "STATE_SYNCHRONIZED");
-                break;
-        }
+        Log.d("Receiver", "current=" + Integer.toString(currState) +
+                          " prev=" + Integer.toString(prevState) +
+                          " reason=" + Integer.toString(reason));
     }
 }
