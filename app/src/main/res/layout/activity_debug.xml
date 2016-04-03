@@ -10,6 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="dpiki.dreamclient.Debug">
 
+    <!--
     <EditText
         android:id="@+id/e_debugId"
         android:hint="id"
@@ -60,6 +61,21 @@
         android:id="@+id/b_debugFetchMenu"
         android:text="Fetch menu"
         android:onClick="onClickFetchMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+-->
+
+    <Button
+        android:id="@+id/b_debugConnect"
+        android:text="Connect"
+        android:onClick="onClickConnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/b_debugDisconnect"
+        android:text="Disconnect"
+        android:onClick="onClickDisconnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
