@@ -29,7 +29,6 @@ public class NetworkServiceHandler extends Handler {
     // Обработчик сообщений для текущего состояния
     private IMessageProcessor processor;
 
-
     NetworkServiceHandler(Looper looper, Context ctx, NetworkServiceSettings stngs) {
         super(looper);
         context = ctx;
@@ -49,7 +48,7 @@ public class NetworkServiceHandler extends Handler {
                 break;
 
             case NetworkService.MESSAGE_AUTH:
-                processor.onAuth();
+                processor.onAuth(message.arg1);
                 break;
 
             case NetworkService.MESSAGE_AUTH_SUCCESS:
@@ -61,7 +60,7 @@ public class NetworkServiceHandler extends Handler {
                 break;
 
             case NetworkService.MESSAGE_SYNC:
-                processor.onSync();
+                processor.onSync(message.arg1);
                 break;
 
             case NetworkService.MESSAGE_SYNC_SUCCESS:
@@ -73,7 +72,7 @@ public class NetworkServiceHandler extends Handler {
                 break;
 
             case NetworkService.MESSAGE_MENU:
-                processor.onMenu();
+                processor.onMenu(message.arg1);
                 break;
 
             case NetworkService.MESSAGE_MENU_GOT:
@@ -90,6 +89,10 @@ public class NetworkServiceHandler extends Handler {
 
             case NetworkService.MESSAGE_SEND_ORDER:
                 processor.onSendOrder();
+                break;
+
+            case NetworkService.MESSAGE_OUT_OF_TRY:
+                processor.onOutOfTry();
                 break;
 
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:

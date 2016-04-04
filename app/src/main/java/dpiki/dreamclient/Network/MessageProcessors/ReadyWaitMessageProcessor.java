@@ -6,10 +6,10 @@ import dpiki.dreamclient.Network.NetworkServiceHandler;
 /**
  * Created by User on 30.03.2016.
  */
-public class ReadyWaitMessageProcessor extends LostConnectable {
+public class ReadyWaitMessageProcessor extends Waitable {
 
-    public ReadyWaitMessageProcessor(NetworkServiceHandler handler) {
-        super(handler);
+    public ReadyWaitMessageProcessor(NetworkServiceHandler handler, int tryCount) {
+        super(handler, tryCount);
     }
 
     @Override

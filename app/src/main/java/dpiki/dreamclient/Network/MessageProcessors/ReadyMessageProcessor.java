@@ -6,7 +6,7 @@ import dpiki.dreamclient.Network.NetworkServiceHandler;
 /**
  * Created by User on 30.03.2016.
  */
-public class ReadyMessageProcessor extends LostConnectable {
+public class ReadyMessageProcessor extends OutOfTryable {
 
     public ReadyMessageProcessor(NetworkServiceHandler handler) {
         super(handler);

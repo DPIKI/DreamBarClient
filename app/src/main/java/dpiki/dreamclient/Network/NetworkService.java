@@ -34,6 +34,7 @@ public class NetworkService extends Service {
     public static final int MESSAGE_MENU_GOT = 11;
     public static final int MESSAGE_SEND_ORDER = 12;
     public static final int MESSAGE_INVALID_REQUEST = 13;
+    public static final int MESSAGE_OUT_OF_TRY = 15;
 
     // Состояния
     public static final int STATE_DISCONNECTED = 0;
@@ -48,22 +49,22 @@ public class NetworkService extends Service {
     public static final int STATE_READY_WAIT = 9;
 
     // Коды действий
-    private static final int ACT_AUTHORIZE = 1;
-    private static final int ACT_CHECK_SYNC = 2;
-    private static final int ACT_MENU = 3;
-    private static final int ACT_MAKE_ORDER = 4;
+    public static final int ACT_AUTHORIZE = 1;
+    public static final int ACT_CHECK_SYNC = 2;
+    public static final int ACT_MENU = 3;
+    public static final int ACT_MAKE_ORDER = 4;
 
     // Коды ответов
-    private static final int RESPONSE_AUTH_SUCCESS = 1;
-    private static final int RESPONSE_SYNC_SUCCESS = 2;
-    private static final int RESPONSE_MENU = 3;
-    private static final int RESPONSE_ORDER_MADE = 4;
-    private static final int RESPONSE_ERROR_INVALID_REQUEST = 5;
-    private static final int RESPONSE_ERROR_INVALID_PASSWORD = 6;
-    private static final int RESPONSE_ERROR_INVALID_HASH = 7;
-    private static final int RESPONSE_ERROR_INVALID_COURSE_ID = 8;
-    private static final int RESPONSE_ERROR_ACCESS_DENIED_AUTH = 9;
-    private static final int RESPONSE_ERROR_ACCESS_DENIED_SYNC = 10;
+    public static final int RESPONSE_AUTH_SUCCESS = 1;
+    public static final int RESPONSE_SYNC_SUCCESS = 2;
+    public static final int RESPONSE_MENU = 3;
+    public static final int RESPONSE_ORDER_MADE = 4;
+    public static final int RESPONSE_ERROR_INVALID_REQUEST = 5;
+    public static final int RESPONSE_ERROR_INVALID_PASSWORD = 6;
+    public static final int RESPONSE_ERROR_INVALID_HASH = 7;
+    public static final int RESPONSE_ERROR_INVALID_COURSE_ID = 8;
+    public static final int RESPONSE_ERROR_ACCESS_DENIED_AUTH = 9;
+    public static final int RESPONSE_ERROR_ACCESS_DENIED_SYNC = 10;
 
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
@@ -119,6 +120,7 @@ public class NetworkService extends Service {
         editor.putBoolean("is_running", settings.isServiceRunning);
         editor.putString("name", settings.name);
         editor.putString("password", settings.password);
+        editor.apply();
 
         Toast.makeText(this, "NetworkService destroyed", Toast.LENGTH_SHORT).show();
     }

@@ -45,6 +45,7 @@ public class ConnectingMessageProcessor extends Disconnectable {
             // Говорим начать авторизацию
             Message msg = mHandler.obtainMessage();
             msg.what = NetworkService.MESSAGE_AUTH;
+            msg.arg1 = 0;
             mHandler.sendMessage(msg);
         }
         catch (IOException e) {
