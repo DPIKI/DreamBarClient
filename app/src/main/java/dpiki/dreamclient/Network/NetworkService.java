@@ -252,8 +252,7 @@ public class NetworkService extends Service {
     // -------------- Support -------------------
 
     public static Boolean parseIp(String ip) {
-        // TODO запилить проверку ip на валидность
-        return true;
+        return ip.matches("^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))\\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))$");
     }
 
     void sendConnectMessage() {
