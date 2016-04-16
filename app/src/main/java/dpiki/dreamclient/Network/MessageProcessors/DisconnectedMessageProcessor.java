@@ -1,6 +1,5 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
-import android.os.Message;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -27,9 +26,7 @@ public class DisconnectedMessageProcessor extends BaseMessageProcessor {
         if (mHandler.settings.isServiceRunning) {
 
             // Говорим себе начать коннектиться
-            Message msg = mHandler.obtainMessage();
-            msg.what = NetworkService.MESSAGE_CONNECT;
-            mHandler.sendMessage(msg);
+            sendMessageToHandler(NetworkService.MESSAGE_CONNECT);
 
             // Меняем состояние
             mHandler.changeState(new ConnectingMessageProcessor(mHandler),

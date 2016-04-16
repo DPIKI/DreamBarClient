@@ -1,9 +1,9 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
-import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -32,7 +32,9 @@ public class ConnectingMessageProcessor extends Disconnectable {
             // Открываем сокет
             String ip = mHandler.settings.ip;
             int port = mHandler.settings.port;
-            mHandler.socket = new Socket(ip, port);
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(ip, port), 1000);
+            mHandler.socket = socket;
 
             // Запускаем поток, который будет слушать сокет
             NetworkServiceReader inputThread = new NetworkServiceReader(mHandler, mHandler.socket);
@@ -43,15 +45,11 @@ public class ConnectingMessageProcessor extends Disconnectable {
                     NetworkService.MESSAGE_CONNECT);
 
             // Говорим начать авторизацию
-            Message msg = mHandler.obtainMessage();
-            msg.what = NetworkService.MESSAGE_AUTH;
-            mHandler.sendMessage(msg);
+            sendMessageToHandler(NetworkService.MESSAGE_AUTH);
         }
         catch (IOException e) {
             // Говорим переподключиться
-            Message msg = mHandler.obtainMessage();
-            msg.what = NetworkService.MESSAGE_CONNECT;
-            mHandler.sendMessageDelayed(msg, 1000);
+            sendMessageToHandler(NetworkService.MESSAGE_CONNECT, 1000);
 
             // На всякий случай :)
             mHandler.clearResources();

@@ -30,6 +30,13 @@
             android:layout_height="wrap_content" />
 
         <Button
+            android:id="@+id/b_settings"
+            android:text="Settings"
+            android:onClick="onClickSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
             android:id="@+id/b_menu"
             android:text="Menu"
             android:onClick="onClickMenu"
