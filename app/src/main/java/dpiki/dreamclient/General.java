@@ -25,4 +25,9 @@ public class General extends Activity {
         Intent intent = new Intent(this, MenuCategoryView.class);
         startActivity(intent);
     }
+
+    public void onClickSettings(View v) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }

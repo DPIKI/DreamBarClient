@@ -8,7 +8,7 @@ import dpiki.dreamclient.Network.NetworkServiceHandler;
 /**
  * Created by User on 30.03.2016.
  */
-public class SyncMessageProcessor extends OutOfTryable {
+public class SyncMessageProcessor extends LostConnectable {
 
     public SyncMessageProcessor(NetworkServiceHandler handler) {
         super(handler);
@@ -20,7 +20,7 @@ public class SyncMessageProcessor extends OutOfTryable {
     }
 
     @Override
-    public void onSync(int tryCount) {
+    public void onSync() {
         Log.d("SMP", "onSync");
     }
 }

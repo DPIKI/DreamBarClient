@@ -1,5 +1,7 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
+import android.os.Message;
+
 import dpiki.dreamclient.Network.NetworkServiceHandler;
 
 /**
@@ -16,15 +18,25 @@ public abstract class BaseMessageProcessor implements IMessageProcessor {
     @Override public void onDisconnect() {}
     @Override public void onLostConnection() {}
     @Override public void onConnect() {}
-    @Override public void onAuth(int tryCount) {}
+    @Override public void onAuth() {}
     @Override public void onAuthSuccess() {}
     @Override public void onWrongPassword() {}
-    @Override public void onSync(int tryCount) {}
+    @Override public void onSync() {}
     @Override public void onSyncSuccess() {}
     @Override public void onInvalidHash() {}
-    @Override public void onMenu(int tryCount) {}
+    @Override public void onMenu() {}
     @Override public void onMenuGot() {}
     @Override public void onSendOrder() {}
-    @Override public void onInvalidRequest() {}
-    @Override public void onOutOfTry() {}
+
+    protected void sendMessageToHandler(int message) {
+        Message msg = mHandler.obtainMessage();
+        msg.what = message;
+        mHandler.sendMessage(msg);
+    }
+
+    protected void sendMessageToHandler(int message, int delay) {
+        Message msg = mHandler.obtainMessage();
+        msg.what = message;
+        mHandler.sendMessageDelayed(msg, delay);
+    }
 }

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:title="@string/s_pref_ip"
+        android:dialogTitle="@string/s_pref_ip"
+        android:defaultValue="192.168.0.1"
+        android:key="@string/s_pref_key_ip"/>
+
+    <EditTextPreference
+        android:title="@string/s_pref_port"
+        android:dialogTitle="@string/s_pref_port"
+        android:defaultValue="13563"
+        android:key="@string/s_pref_key_port"/>
+
+    <EditTextPreference
+        android:title="@string/s_pref_name"
+        android:dialogTitle="@string/s_pref_name"
+        android:defaultValue=""
+        android:key="@string/s_pref_key_name"/>
+
+    <EditTextPreference
+        android:title="@string/s_pref_password"
+        android:dialogTitle="@string/s_pref_password"
+        android:defaultValue="password"
+        android:key="@string/s_pref_key_password"/>
+
+    <SwitchPreference
+        android:title="@string/s_pref_running"
+        android:dialogTitle="@string/s_pref_running"
+        android:defaultValue="false"
+        android:key="@string/s_pref_key_running"/>
+
+</PreferenceScreen>

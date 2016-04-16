@@ -2,7 +2,6 @@ package dpiki.dreamclient.Network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.os.Message;
 
 import org.json.JSONException;
@@ -66,69 +65,61 @@ public class NetworkServiceReader extends Thread {
 
                 // Читаем код ответа
                 String strJsonData = new String(data, 4, jsonSize);
-                try {
-                    JSONObject jsonRoot = new JSONObject(strJsonData);
-                    int responseCode = jsonRoot.getInt(KEY_RESPONSE_CODE);
+                JSONObject jsonRoot = new JSONObject(strJsonData);
+                int responseCode = jsonRoot.getInt(KEY_RESPONSE_CODE);
 
-                    // Шлем сообщения в зависимости от кода ответа
-                    Message msg = handler.obtainMessage();
-                    switch (responseCode) {
-                        case NetworkService.RESPONSE_AUTH_SUCCESS:
-                            msg.what = NetworkService.MESSAGE_AUTH_SUCCESS;
-                            break;
+                // Шлем сообщения в зависимости от кода ответа
+                Message msg = handler.obtainMessage();
+                switch (responseCode) {
+                    case NetworkService.RESPONSE_AUTH_SUCCESS:
+                        msg.what = NetworkService.MESSAGE_AUTH_SUCCESS;
+                        break;
 
-                        case NetworkService.RESPONSE_SYNC_SUCCESS:
-                            msg.what = NetworkService.MESSAGE_SYNC_SUCCESS;
-                            break;
+                    case NetworkService.RESPONSE_SYNC_SUCCESS:
+                        msg.what = NetworkService.MESSAGE_SYNC_SUCCESS;
+                        break;
 
-                        case NetworkService.RESPONSE_ORDER_MADE:
-                            // TODO: запилить обработку сообщения "заказ сделан"
-                            msg.what = -1;
-                            break;
+                    case NetworkService.RESPONSE_ORDER_MADE:
+                        // TODO: запилить обработку сообщения "заказ сделан"
+                        msg.what = -1;
+                        break;
 
-                        case NetworkService.RESPONSE_MENU:
-                            // TODO: запилить обработку меню
-                            msg.what = -1;
-                            break;
+                    case NetworkService.RESPONSE_MENU:
+                        // TODO: запилить обработку меню
+                        msg.what = -1;
+                        break;
 
-                        case NetworkService.RESPONSE_ERROR_INVALID_HASH:
-                            msg.what = NetworkService.MESSAGE_INVALID_HASH;
-                            break;
+                    case NetworkService.RESPONSE_ERROR_INVALID_HASH:
+                        msg.what = NetworkService.MESSAGE_INVALID_HASH;
+                        break;
 
-                        case NetworkService.RESPONSE_ERROR_INVALID_REQUEST:
-                            msg.what = NetworkService.MESSAGE_INVALID_REQUEST;
-                            break;
+                    case NetworkService.RESPONSE_ERROR_INVALID_REQUEST:
+                        msg.what = NetworkService.MESSAGE_LOST_CONNECTION;
+                        break;
 
-                        case NetworkService.RESPONSE_ERROR_INVALID_PASSWORD:
-                            msg.what = NetworkService.MESSAGE_WRONG_PASSWORD;
-                            break;
+                    case NetworkService.RESPONSE_ERROR_INVALID_PASSWORD:
+                        msg.what = NetworkService.MESSAGE_WRONG_PASSWORD;
+                        break;
 
-                        case NetworkService.RESPONSE_ERROR_INVALID_COURSE_ID:
-                            // TODO: запилить обработку неправильного id блюда
-                            msg.what = -1;
-                            break;
+                    case NetworkService.RESPONSE_ERROR_INVALID_COURSE_ID:
+                        // TODO: запилить обработку неправильного id блюда
+                        msg.what = -1;
+                        break;
 
-                        case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_AUTH:
-                            // TODO: запилить обработку ошибки авторизации
-                            msg.what = -1;
-                            break;
+                    case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_AUTH:
+                        // TODO: запилить обработку ошибки авторизации
+                        msg.what = -1;
+                        break;
 
-                        case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_SYNC:
-                            // TODO: запилить обработку ошибки синхронизации
-                            msg.what = -1;
-                            break;
-                    }
-                    handler.sendMessage(msg);
+                    case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_SYNC:
+                        // TODO: запилить обработку ошибки синхронизации
+                        msg.what = -1;
+                        break;
                 }
-                catch (JSONException e) {
-                    // Если в принятых данных ошибка, то говорим, что запрос неправильный
-                    Message msg = handler.obtainMessage();
-                    msg.what = NetworkService.MESSAGE_INVALID_REQUEST;
-                    handler.sendMessage(msg);
-                }
+                handler.sendMessage(msg);
             }
         }
-        catch (IOException | OutOfMemoryError e) {
+        catch (IOException | OutOfMemoryError | JSONException e) {
             // Если что-то пошло не так говорим что мы отключились
             Message msg = handler.obtainMessage();
             msg.what = NetworkService.MESSAGE_LOST_CONNECTION;

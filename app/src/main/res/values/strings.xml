@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">DreamClient</string>
     <string name="s_newOrder">Новый заказ</string>
+
+    <string name="s_pref_key_ip">ip</string>
+    <string name="s_pref_key_port">port</string>
+    <string name="s_pref_key_name">name</string>
+    <string name="s_pref_key_password">password</string>
+    <string name="s_pref_key_running">running</string>
+
+    <string name="s_pref_ip">IP адрес</string>
+    <string name="s_pref_port">Порт</string>
+    <string name="s_pref_name">Ваше имя</string>
+    <string name="s_pref_password">Пароль</string>
+    <string name="s_pref_running">Статус сервера</string>
+
 </resources>

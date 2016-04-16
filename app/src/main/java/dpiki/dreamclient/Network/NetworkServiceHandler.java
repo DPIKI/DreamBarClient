@@ -48,7 +48,7 @@ public class NetworkServiceHandler extends Handler {
                 break;
 
             case NetworkService.MESSAGE_AUTH:
-                processor.onAuth(message.arg1);
+                processor.onAuth();
                 break;
 
             case NetworkService.MESSAGE_AUTH_SUCCESS:
@@ -60,7 +60,7 @@ public class NetworkServiceHandler extends Handler {
                 break;
 
             case NetworkService.MESSAGE_SYNC:
-                processor.onSync(message.arg1);
+                processor.onSync();
                 break;
 
             case NetworkService.MESSAGE_SYNC_SUCCESS:
@@ -72,15 +72,11 @@ public class NetworkServiceHandler extends Handler {
                 break;
 
             case NetworkService.MESSAGE_MENU:
-                processor.onMenu(message.arg1);
+                processor.onMenu();
                 break;
 
             case NetworkService.MESSAGE_MENU_GOT:
                 processor.onMenuGot();
-                break;
-
-            case NetworkService.MESSAGE_INVALID_REQUEST:
-                processor.onInvalidRequest();
                 break;
 
             case NetworkService.MESSAGE_LOST_CONNECTION:
@@ -89,10 +85,6 @@ public class NetworkServiceHandler extends Handler {
 
             case NetworkService.MESSAGE_SEND_ORDER:
                 processor.onSendOrder();
-                break;
-
-            case NetworkService.MESSAGE_OUT_OF_TRY:
-                processor.onOutOfTry();
                 break;
 
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:
