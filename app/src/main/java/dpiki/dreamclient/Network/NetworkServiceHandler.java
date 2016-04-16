@@ -29,7 +29,6 @@ public class NetworkServiceHandler extends Handler {
     // Обработчик сообщений для текущего состояния
     private IMessageProcessor processor;
 
-
     NetworkServiceHandler(Looper looper, Context ctx, NetworkServiceSettings stngs) {
         super(looper);
         context = ctx;
@@ -78,10 +77,6 @@ public class NetworkServiceHandler extends Handler {
 
             case NetworkService.MESSAGE_MENU_GOT:
                 processor.onMenuGot();
-                break;
-
-            case NetworkService.MESSAGE_INVALID_REQUEST:
-                processor.onInvalidRequest();
                 break;
 
             case NetworkService.MESSAGE_LOST_CONNECTION:

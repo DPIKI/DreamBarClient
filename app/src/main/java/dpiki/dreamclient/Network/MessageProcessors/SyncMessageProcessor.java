@@ -1,5 +1,7 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
+import android.util.Log;
+
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.Network.NetworkServiceHandler;
 
@@ -15,5 +17,10 @@ public class SyncMessageProcessor extends LostConnectable {
     @Override
     public int state() {
         return NetworkService.STATE_SYNC;
+    }
+
+    @Override
+    public void onSync() {
+        Log.d("SMP", "onSync");
     }
 }

@@ -1,6 +1,5 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
-import android.os.Message;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -23,9 +22,7 @@ public abstract class LostConnectable extends Disconnectable {
         mHandler.clearResources();
 
         // Говорим себе переподключиться
-        Message msg = mHandler.obtainMessage();
-        msg.what = NetworkService.MESSAGE_CONNECT;
-        mHandler.sendMessage(msg);
+        sendMessageToHandler(NetworkService.MESSAGE_CONNECT);
 
         // Переключаем состояние
         mHandler.changeState(new ConnectingMessageProcessor(mHandler),

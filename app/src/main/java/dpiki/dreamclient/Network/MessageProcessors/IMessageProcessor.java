@@ -20,5 +20,4 @@ public interface IMessageProcessor {
     void onMenu();
     void onMenuGot();
     void onSendOrder();
-    void onInvalidRequest();
 }
