@@ -4,6 +4,9 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,15 +15,32 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class MenuCategoryView extends Activity {
+public class MenuCategoryView extends AppCompatActivity {
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_action_bar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        int id = menuItem.getItemId();
+
+        switch (id){
+            case R.id.back:
+                startActivity(new Intent(getApplicationContext(),SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_category_view);
 
-        ActionBar actionBar = getActionBar();
-        actionBar.setTitle("My Title");
         Singleton singleton = Singleton.getInstance();
         final ArrayList<String> categories = singleton.menuGetCategories();
 
