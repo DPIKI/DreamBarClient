@@ -18,7 +18,12 @@ public class InitApp extends Application {
 
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Singleton.menuFetch(db);
+        try {
+            Singleton.menuFetch(db);
+        }
+        finally {
+            db.close();
+        }
 
         // На всякий случай запускаем сетевой сервис
         Intent intent = new Intent(getApplicationContext(), NetworkService.class);

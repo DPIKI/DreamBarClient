@@ -22,7 +22,7 @@ public abstract class LostConnectable extends Disconnectable {
         mHandler.clearResources();
 
         // Говорим себе переподключиться
-        sendMessageToHandler(NetworkService.MESSAGE_CONNECT);
+        sendMessageToHandler(NetworkService.MESSAGE_CONNECT, 1000);
 
         // Переключаем состояние
         mHandler.changeState(new ConnectingMessageProcessor(mHandler),
