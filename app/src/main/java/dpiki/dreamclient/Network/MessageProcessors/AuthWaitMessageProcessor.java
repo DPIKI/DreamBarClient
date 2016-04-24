@@ -1,9 +1,11 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.Network.NetworkServiceHandler;
+import dpiki.dreamclient.Network.NetworkServiceWriter;
 
 /**
  * Created by User on 30.03.2016.
@@ -32,11 +34,17 @@ public class AuthWaitMessageProcessor extends LostConnectable {
     public void onAuthSuccess() {
         Log.d("AWMP", "onAuthSuccess");
 
+        Bundle bundle = new Bundle();
+        bundle.putInt(NetworkServiceWriter.KEY_ACTION_CODE, NetworkService.ACT_CHECK_SYNC);
+        bundle.putString(NetworkServiceWriter.KEY_HASH, mHandler.settings.hash);
+
         // Меняем состояние
-        mHandler.changeState(new SyncMessageProcessor(mHandler),
+        mHandler.changeState(new SyncWaitMessageProcessor(mHandler),
                 NetworkService.MESSAGE_AUTH_SUCCESS);
 
-        // Говорим начать синхронизацию
-        sendMessageToHandler(NetworkService.MESSAGE_SYNC);
+        // Запускаем поток, который выведет сообщение в сеть
+        NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.socket, bundle);
+        writer.start();
+
     }
 }

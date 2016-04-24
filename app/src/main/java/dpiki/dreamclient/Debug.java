@@ -66,7 +66,7 @@ public class Debug extends AppCompatActivity{
         unbindService(connection);
     }
 
-    public void onClickAdd(View view) {
+ /*   public void onClickAdd(View view) {
         try {
             MenuEntry me = new MenuEntry();
             me.id = Integer.parseInt(editId.getText().toString());
@@ -148,7 +148,7 @@ public class Debug extends AppCompatActivity{
             Toast.makeText(this, "Service is unbound", Toast.LENGTH_SHORT).show();
         }
     }
-
+*/
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

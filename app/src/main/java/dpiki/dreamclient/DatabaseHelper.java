@@ -49,6 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(QUERY_DROP_MENU_TABLE);
+        db.execSQL(QUERY_CREATE_MENU_TABLE);
     }
 
     public static ArrayList<MenuEntry> readMenu(SQLiteDatabase db) {

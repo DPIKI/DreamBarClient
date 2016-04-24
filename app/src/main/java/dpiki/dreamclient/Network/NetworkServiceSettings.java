@@ -9,4 +9,5 @@ public class NetworkServiceSettings {
     public Boolean isServiceRunning;
     public String name;
     public String password;
+    public String hash;
 }

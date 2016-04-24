@@ -38,15 +38,12 @@ public class NetworkService extends Service {
     // Состояния
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
-    public static final int STATE_AUTH = 2;
-    public static final int STATE_AUTH_WAIT = 3;
+    public static final int STATE_AUTH_WAIT = 2;
     public static final int STATE_AUTH_WRONG_PASSWORD = 4;
-    public static final int STATE_SYNC = 5;
-    public static final int STATE_SYNC_WAIT = 6;
-    public static final int STATE_MENU = 7;
-    public static final int STATE_MENU_WAIT = 8;
-    public static final int STATE_READY = 9;
-    public static final int STATE_READY_WAIT = 10;
+    public static final int STATE_SYNC_WAIT = 5;
+    public static final int STATE_MENU_WAIT = 6;
+    public static final int STATE_READY = 7;
+    public static final int STATE_READY_WAIT = 8;
 
     // Коды действий
     public static final int ACT_AUTHORIZE = 1;
@@ -69,27 +66,6 @@ public class NetworkService extends Service {
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
     private NetworkServiceSettings settings;
-    private SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(getString(R.string.s_pref_key_ip))) {
-                setIp(sharedPreferences.getString(key, "127.0.0.1"));
-            } else if (key.equals(getString(R.string.s_pref_key_port))) {
-                setPort(Integer.parseInt(sharedPreferences.getString(key, "0")));
-            } else if (key.equals(getString(R.string.s_pref_key_password))) {
-                setPassword(sharedPreferences.getString(key, "password"));
-            } else if (key.equals(getString(R.string.s_pref_key_name))) {
-                setName(sharedPreferences.getString(key, "name"));
-            } else if (key.equals(getString(R.string.s_pref_key_running))) {
-                Boolean is_running = sharedPreferences.getBoolean(key, false);
-                if (is_running)
-                    connect();
-                else
-                    disconnect();
-            }
-        }
-    };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -114,6 +90,7 @@ public class NetworkService extends Service {
         settings.isServiceRunning = pref.getBoolean(getString(R.string.s_pref_key_running), false);
         settings.password = pref.getString(getString(R.string.s_pref_key_password), "password");
         settings.name = pref.getString(getString(R.string.s_pref_key_name), "");
+        settings.hash = pref.getString("menuHash", "");
 
         // Вешаем слушателя изменения SharedPreferences
         pref.registerOnSharedPreferenceChangeListener(listener);
@@ -122,7 +99,7 @@ public class NetworkService extends Service {
         // сообщения от UI потока и дочерних потоков
         HandlerThread thread = new HandlerThread("Working Thread");
         thread.start();
-        handler = new NetworkServiceHandler(thread.getLooper(), getApplicationContext(), settings);
+        handler = new NetworkServiceHandler(thread.getLooper(), getBaseContext(), settings);
 
         // Говорим этому потоку создать соединение, если пользователь разрешил
         if (settings.isServiceRunning)
@@ -137,11 +114,41 @@ public class NetworkService extends Service {
         // Убираем слушателя изменения SharedPreferences
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.unregisterOnSharedPreferenceChangeListener(listener);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("menuHash", settings.hash);
     }
 
     // ---------------------------- Interface to application ----------------------------
 
-    public void connect() {
+    public int state() {
+        return handler.state();
+    }
+
+    public static Boolean parseIp(String ip) {
+        return ip.matches("^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))\\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))$");
+    }
+
+    public class NetworkServiceBinder extends Binder {
+        public NetworkService getServiceInstance() {
+            return NetworkService.this;
+        }
+    }
+
+    // -------------- Support -------------------
+
+    private void sendConnectMessage() {
+        Message msg = handler.obtainMessage();
+        msg.what = MESSAGE_CONNECT;
+        handler.sendMessage(msg);
+    }
+
+    private void sendDisconnectMessage() {
+        Message msg = handler.obtainMessage();
+        msg.what = MESSAGE_DISCONNECT;
+        handler.sendMessage(msg);
+    }
+
+    private void connect() {
         // Запоминаем, что при следующем запуске надо сразу коннектиться
         settings.isServiceRunning = true;
 
@@ -151,7 +158,7 @@ public class NetworkService extends Service {
         Log.d("Network Service", "connect");
     }
 
-    public void disconnect() {
+    private void disconnect() {
         // Запоминаем, что при коннектиться при запуске не надо
         settings.isServiceRunning = false;
 
@@ -161,7 +168,7 @@ public class NetworkService extends Service {
         Log.d("Network Service", "disconnect");
     }
 
-    public Boolean setIp(String ip) {
+    private Boolean setIp(String ip) {
         // Проверяем переданную строку
         if (!parseIp(ip))
             return false;
@@ -178,7 +185,7 @@ public class NetworkService extends Service {
         return true;
     }
 
-    public Boolean setPort(int port) {
+    private Boolean setPort(int port) {
         // Проверяем правильный ли порт
         if (port < 0 || port > 0xFFFF)
             return false;
@@ -195,7 +202,7 @@ public class NetworkService extends Service {
         return true;
     }
 
-    public Boolean setPassword(String password) {
+    private Boolean setPassword(String password) {
         // Проверяем длину строки
         if (password.length() > 30)
             return false;
@@ -212,7 +219,7 @@ public class NetworkService extends Service {
         return true;
     }
 
-    public Boolean setName(String name) {
+    private Boolean setName(String name) {
         // Проверяем длину строки
         if (name.length() > 30)
             return false;
@@ -229,47 +236,24 @@ public class NetworkService extends Service {
         return true;
     }
 
-    public String getIp() {
-        return settings.ip;
-    }
-
-    public int getPort() {
-        return settings.port;
-    }
-
-    public String getPassword() {
-        return settings.password;
-    }
-
-    public String getName() {
-        return settings.name;
-    }
-
-    public int state() {
-        return handler.state();
-    }
-
-    // -------------- Support -------------------
-
-    public static Boolean parseIp(String ip) {
-        return ip.matches("^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))\\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))$");
-    }
-
-    void sendConnectMessage() {
-        Message msg = handler.obtainMessage();
-        msg.what = MESSAGE_CONNECT;
-        handler.sendMessage(msg);
-    }
-
-    void sendDisconnectMessage() {
-        Message msg = handler.obtainMessage();
-        msg.what = MESSAGE_DISCONNECT;
-        handler.sendMessage(msg);
-    }
-
-    public class NetworkServiceBinder extends Binder {
-        public NetworkService getServiceInstance() {
-            return NetworkService.this;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.equals(getString(R.string.s_pref_key_ip))) {
+                setIp(sharedPreferences.getString(key, "127.0.0.1"));
+            } else if (key.equals(getString(R.string.s_pref_key_port))) {
+                setPort(Integer.parseInt(sharedPreferences.getString(key, "0")));
+            } else if (key.equals(getString(R.string.s_pref_key_password))) {
+                setPassword(sharedPreferences.getString(key, "password"));
+            } else if (key.equals(getString(R.string.s_pref_key_name))) {
+                setName(sharedPreferences.getString(key, "name"));
+            } else if (key.equals(getString(R.string.s_pref_key_running))) {
+                Boolean is_running = sharedPreferences.getBoolean(key, false);
+                if (is_running)
+                    connect();
+                else
+                    disconnect();
+            }
         }
-    }
+    };
 }
