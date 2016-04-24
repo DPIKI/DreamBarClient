@@ -10,7 +10,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Holo.Light">
+        android:theme="@style/AppTheme">
         <activity android:name=".General">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,16 +18,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MenuItemView" />
-        <activity android:name=".MenuCategoryView" />
-        <activity android:name=".Debug" />
+        <activity android:name=".MenuItemView"
+            android:parentActivityName=".MenuCategoryView"/>
+        <activity android:name=".MenuCategoryView"
+            android:parentActivityName=".General"/>
+        <activity android:name=".Debug"
+            android:parentActivityName=".General"/>
 
         <service
             android:name=".Network.NetworkService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity"
+            android:parentActivityName=".General">
+        </activity>
     </application>
 
 </manifest>
