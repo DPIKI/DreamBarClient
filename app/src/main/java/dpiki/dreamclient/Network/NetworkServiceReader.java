@@ -158,17 +158,19 @@ public class NetworkServiceReader extends Thread {
             String strMenu = receivedData.root.getString(NetworkServiceReader.KEY_MENU);
 
             // Парсим меню
-            String[] menuItems = strMenu.split("\n");
             ArrayList<MenuEntry> menuEntries = new ArrayList<>();
-            for (int i = 0; i < menuItems.length; i++) {
-                String[] menuItemColumns = menuItems[i].split(";");
-                if (menuItemColumns.length != 3)
-                    throw new IOException();
-                MenuEntry entry = new MenuEntry();
-                entry.id = Integer.parseInt(menuItemColumns[0]);
-                entry.name = menuItemColumns[1];
-                entry.category = menuItemColumns[2];
-                menuEntries.add(entry);
+            if (!strMenu.isEmpty()) {
+                String[] menuItems = strMenu.split("\n");
+                for (String menuItem : menuItems) {
+                    String[] menuItemColumns = menuItem.split(";");
+                    if (menuItemColumns.length != 3)
+                        throw new IOException();
+                    MenuEntry entry = new MenuEntry();
+                    entry.id = Integer.parseInt(menuItemColumns[0]);
+                    entry.name = menuItemColumns[1];
+                    entry.category = menuItemColumns[2];
+                    menuEntries.add(entry);
+                }
             }
 
             // Записываем меню в базу
@@ -186,8 +188,8 @@ public class NetworkServiceReader extends Thread {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA256");
             byte[] digest = messageDigest.digest(strMenu.getBytes("UTF-8"));
             StringBuilder sb = new StringBuilder(digest.length * 2);
-            for (int i = 0; i < digest.length; i++) {
-                sb.append(String.format("%02X", digest[i]));
+            for (byte aDigest : digest) {
+                sb.append(String.format("%02X", aDigest));
             }
             handler.settings.hash = sb.toString();
         }
