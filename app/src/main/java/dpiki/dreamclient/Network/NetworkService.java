@@ -25,15 +25,13 @@ public class NetworkService extends Service {
     public static final int MESSAGE_CONNECT = 1;
     public static final int MESSAGE_DISCONNECT = 2;
     public static final int MESSAGE_LOST_CONNECTION = 3;
-    public static final int MESSAGE_AUTH = 4;
-    public static final int MESSAGE_AUTH_SUCCESS = 5;
-    public static final int MESSAGE_WRONG_PASSWORD = 6;
-    public static final int MESSAGE_SYNC = 7;
-    public static final int MESSAGE_SYNC_SUCCESS = 8;
-    public static final int MESSAGE_INVALID_HASH = 9;
-    public static final int MESSAGE_MENU = 10;
-    public static final int MESSAGE_MENU_GOT = 11;
-    public static final int MESSAGE_SEND_ORDER = 12;
+    public static final int MESSAGE_AUTH_SUCCESS = 4;
+    public static final int MESSAGE_WRONG_PASSWORD = 5;
+    public static final int MESSAGE_SYNC_SUCCESS = 6;
+    public static final int MESSAGE_INVALID_HASH = 7;
+    public static final int MESSAGE_MENU_GOT = 8;
+    public static final int MESSAGE_SEND_ORDER = 9;
+    public static final int MESSAGE_ORDER_MADE = 10;
 
     // Состояния
     public static final int STATE_DISCONNECTED = 0;

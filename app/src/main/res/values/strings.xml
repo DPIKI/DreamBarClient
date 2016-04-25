@@ -15,5 +15,7 @@
     <string name="s_pref_running">Статус сервера</string>
 
     <string name="s_action_bar_settings">Настройки</string>
+    <string name="s_button_new_order">Новый заказ</string>
+    <string name="s_button_send_order">Отправить заказ</string>
 
 </resources>
