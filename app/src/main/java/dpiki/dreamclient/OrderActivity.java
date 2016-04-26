@@ -1,14 +1,36 @@
 package dpiki.dreamclient;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
 public class OrderActivity extends AppCompatActivity {
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_action_bar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        int id = menuItem.getItemId();
+
+        switch (id){
+            case R.id.back:
+                startActivity(new Intent(getApplicationContext(),SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
+    }
 
     ArrayList<OrderEntry> orderEntries = new ArrayList<>();
 
