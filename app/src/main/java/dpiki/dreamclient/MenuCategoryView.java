@@ -41,8 +41,13 @@ public class MenuCategoryView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_category_view);
 
-        Singleton singleton = Singleton.getInstance();
-        final ArrayList<String> categories = singleton.menuGetCategories();
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        ArrayList<MenuEntry> menuEntries = DatabaseHelper.readMenu(dbHelper.getReadableDatabase());
+
+        ArrayList<String> categories = new ArrayList<>();
+        for(int i = 0;i <menuEntries.size();i++){
+            categories.add(menuEntries.get(i).category.toString());
+        }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, categories);

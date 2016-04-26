@@ -47,10 +47,6 @@ public class NetworkServiceHandler extends Handler {
                 processor.onDisconnect();
                 break;
 
-            case NetworkService.MESSAGE_AUTH:
-                processor.onAuth();
-                break;
-
             case NetworkService.MESSAGE_AUTH_SUCCESS:
                 processor.onAuthSuccess();
                 break;
@@ -59,20 +55,12 @@ public class NetworkServiceHandler extends Handler {
                 processor.onWrongPassword();
                 break;
 
-            case NetworkService.MESSAGE_SYNC:
-                processor.onSync();
-                break;
-
             case NetworkService.MESSAGE_SYNC_SUCCESS:
                 processor.onSyncSuccess();
                 break;
 
             case NetworkService.MESSAGE_INVALID_HASH:
                 processor.onInvalidHash();
-                break;
-
-            case NetworkService.MESSAGE_MENU:
-                processor.onMenu();
                 break;
 
             case NetworkService.MESSAGE_MENU_GOT:

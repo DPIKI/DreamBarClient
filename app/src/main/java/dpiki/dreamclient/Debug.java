@@ -10,12 +10,15 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.Network.NetworkServiceMessageReceiver;
@@ -29,10 +32,29 @@ public class Debug extends AppCompatActivity{
     DatabaseHelper dbHelper;
     NetworkServiceMessageReceiver receiver;
 
+    //
+    private GestureDetector gestureDetector;
+    //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug);
+
+        //
+        //
+        gestureDetector = initGestureDetector();
+
+        View view = findViewById(R.id.b_debugConnect);
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d("debug: ", "On Touch");
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+        Log.d("debug: ", "SetOnTouchListener");
+        //
+        //
 
         /*editId = (EditText)findViewById(R.id.e_debugId);
         editName = (EditText)findViewById(R.id.e_debugName);
@@ -41,11 +63,45 @@ public class Debug extends AppCompatActivity{
         dbHelper = new DatabaseHelper(this);
     }
 
+    //
+    private GestureDetector initGestureDetector() {
+        return new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+
+            private SwipeDetector detector = new SwipeDetector();
+
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                                   float velocityY) {
+                try {
+                    Log.d("debug: ", "on Fling");
+                    if (detector.isSwipeDown(e1, e2, velocityY)) {
+                        return false;
+                    } else if (detector.isSwipeUp(e1, e2, velocityY)) {
+                        Log.d("debug: ", "Up Swipe");
+                        showToast("Up Swipe");
+                    }else if (detector.isSwipeLeft(e1, e2, velocityX)) {
+                        Log.d("debug: ", "Left Swipe");
+                        showToast("Left Swipe");
+                    } else if (detector.isSwipeRight(e1, e2, velocityX)) {
+                        Log.d("debug: ", "Right Swipe");
+                        showToast("Right Swipe");
+                    }
+                } catch (Exception e) {} //for now, ignore
+                return false;
+            }
+
+            private void showToast(String phrase){
+                Toast.makeText(getApplicationContext(), phrase, Toast.LENGTH_SHORT).show();
+                Log.d("debug: ", phrase);
+            }
+        });
+    }
+    //
+
     @Override
     protected void onResume() {
         super.onResume();
 
-        receiver = new NetworkServiceMessageReceiver(new INetworkServiceListener() {
+        receiver = new NetworkServiceMessageReceiver(new BaseNetworkListener() {
         });
         registerReceiver(receiver,
                 new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
