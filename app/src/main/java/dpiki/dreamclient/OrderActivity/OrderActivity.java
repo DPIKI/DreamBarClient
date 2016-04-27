@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import dpiki.dreamclient.Database.DatabaseMenuHelper;
+import dpiki.dreamclient.Database.DatabaseOrderHelper;
 import dpiki.dreamclient.MenuActivity.MenuActivity;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
@@ -119,10 +122,17 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void fill(){
-        for (int i = 1; i<20; i++){
+        /*for (int i = 1; i<20; i++){
             orderEntries.add(new OrderEntry(i,"элемент меню " + (i+7),i+3,i+12,
-                    "заметки для барменаSASAsdfsdcksmdkcmsdimciksdmicmsidmcismiiimdcd"));
+                    "заметки для бармена"));
+        }*/
+        DatabaseOrderHelper databaseOrderHelper = new DatabaseOrderHelper(OrderActivity.this);
+        SQLiteDatabase database = databaseOrderHelper.getReadableDatabase();
+        orderEntries = DatabaseOrderHelper.readOrder(database);
+        for(int i = 0; i < orderEntries.size(); i++){
+            orderEntries.get(i).note = "заметки:";
         }
+        database.close();
     }
 
     private ServiceConnection connection = new ServiceConnection() {

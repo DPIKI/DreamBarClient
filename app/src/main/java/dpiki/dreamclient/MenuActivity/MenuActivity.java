@@ -24,10 +24,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import dpiki.dreamclient.Database.DatabaseMenuHelper;
+import dpiki.dreamclient.Database.DatabaseOrderHelper;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.Network.NetworkServiceMessageReceiver;
+import dpiki.dreamclient.OrderActivity.OrderEntry;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
 
@@ -99,11 +101,24 @@ public class MenuActivity  extends AppCompatActivity {
         menuNameListView = (ListView) findViewById(R.id.lv_menu_name);
         isServiceConnected = false;
 
+        //
+        DatabaseOrderHelper databaseOrderHelper = new DatabaseOrderHelper(MenuActivity.this);
+        SQLiteDatabase database = databaseOrderHelper.getWritableDatabase();
+        DatabaseOrderHelper.clearMenu(database);
+        database.close();
+        //
         Log.d("CheckPos: ", "In onCreate" + checkedPosition);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
         menuNameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DatabaseOrderHelper databaseOrderHelper = new DatabaseOrderHelper(MenuActivity.this);
+                SQLiteDatabase database = databaseOrderHelper.getWritableDatabase();
+                MenuEntry menuEntry = menuEntryArrayList.get(position);
+                OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 17,
+                        "что-то в заметках");
+                DatabaseOrderHelper.writeOrderEntry(database, orderEntry);
+                database.close();
             }
         });
     }
@@ -147,8 +162,9 @@ public class MenuActivity  extends AppCompatActivity {
         }else {
             menuEntriesByCategory = menuEntryArrayList;
         }
+        menuEntryArrayList = menuEntriesByCategory;
         MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
-                menuEntriesByCategory);
+                menuEntryArrayList);
         menuNameListView.setAdapter(menuListAdapter);
         drawerLayout.closeDrawers();
     }
@@ -233,6 +249,7 @@ public class MenuActivity  extends AppCompatActivity {
         public void onWrongPassword() {
             // TODO : надпись
         }
+
     };
 
     private ArrayList<MenuEntry> getNameMenuByCategory(ArrayList<MenuEntry> menuEntries,
