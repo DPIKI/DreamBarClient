@@ -1,4 +1,4 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.OrderActivity;
 
 /**
  * Created by prog1 on 24.04.2016.

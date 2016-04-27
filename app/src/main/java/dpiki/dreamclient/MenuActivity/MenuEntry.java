@@ -1,4 +1,6 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.MenuActivity;
+
+import java.util.ArrayList;
 
 /**
  * Created by User on 06.03.2016.
@@ -19,4 +21,5 @@ public class MenuEntry {
         name = "";
         category = "";
     }
+
 }

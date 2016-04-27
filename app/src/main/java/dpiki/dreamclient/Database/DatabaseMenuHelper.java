@@ -1,4 +1,4 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.Database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,34 +10,37 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import dpiki.dreamclient.MenuActivity.MenuEntry;
+
 /**
  * Created by User on 07.03.2016.
  */
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseMenuHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Dream.db";
     public static final String MENU_TABLE = "Menu";
     public static final String MENU_COLUMN_ID = "_id";
     public static final String MENU_COLUMN_NAME = "Name";
     public static final String MENU_COLUMN_CATEGORY = "Category";
-    private static final String QUERY_SELECT_ALL = "SELECT * FROM " + MENU_TABLE + ";";
+    private static final String QUERY_SELECT_ALL = "SELECT * FROM " + MENU_TABLE + " ORDER BY " +
+            MENU_COLUMN_CATEGORY + "," + MENU_COLUMN_NAME + ";";
     private static final String QUERY_DROP_MENU_TABLE = "DROP TABLE IF EXISTS " + MENU_TABLE + ";";
     private static final String QUERY_CREATE_MENU_TABLE = "CREATE TABLE " + MENU_TABLE + " (" +
             MENU_COLUMN_ID + " INTEGER PRIMARY KEY, " +
             MENU_COLUMN_CATEGORY + " TEXT, " +
             MENU_COLUMN_NAME + " TEXT);";
 
-    public DatabaseHelper(Context context) {
+    public DatabaseMenuHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                          int version) {
+    public DatabaseMenuHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
+                              int version) {
         super(context, name, factory, version);
     }
 
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                          int version, DatabaseErrorHandler handler) {
+    public DatabaseMenuHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
+                              int version, DatabaseErrorHandler handler) {
         super(context, name, factory, version, handler);
     }
 

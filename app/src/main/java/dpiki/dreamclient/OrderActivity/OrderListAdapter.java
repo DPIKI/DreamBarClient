@@ -1,7 +1,7 @@
 //
 //TODO: запрос
 //
-package dpiki.dreamclient;
+package dpiki.dreamclient.OrderActivity;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import dpiki.dreamclient.R;
 
 /**
  * Created by prog1 on 24.04.2016.
@@ -47,7 +49,7 @@ public class OrderListAdapter extends BaseAdapter {
 
         View view = convertView;
         if (view == null){
-            view = layoutInflater.inflate(R.layout.order_item,
+            view = layoutInflater.inflate(R.layout.activity_order_entry,
                     parent, false);
         }
 

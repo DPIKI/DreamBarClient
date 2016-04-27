@@ -1,4 +1,4 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.Database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import dpiki.dreamclient.OrderActivity.OrderEntry;
 
 /**
  * Created by prog1 on 24.04.2016.
