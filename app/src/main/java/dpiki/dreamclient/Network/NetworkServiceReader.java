@@ -63,8 +63,7 @@ public class NetworkServiceReader extends Thread {
                         break;
 
                     case NetworkService.RESPONSE_ORDER_MADE:
-                        // TODO: запилить обработку сообщения "заказ сделан"
-                        msg.what = -1;
+                        msg.what = NetworkService.MESSAGE_ORDER_MADE;
                         break;
 
                     case NetworkService.RESPONSE_MENU:

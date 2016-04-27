@@ -17,18 +17,19 @@ import dpiki.dreamclient.OrderActivity.OrderEntry;
 public class DatabaseOrderHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Dream.db";
-    public static final String ORDER_TABLE = "Order";
+    public static final String ORDER_TABLE = "OrderTable";
     public static final String ORDER_COLUMN_ID = "_id";
     public static final String ORDER_COLUMN_COUNT = "Count";
-    public static final String ORDER_COLUMN_NUM_TABLE = "Num table";
-    private static final String QUERY_SELECT_ALL = "SELECT * FROM "
-            + ORDER_TABLE + ";";
+    public static final String ORDER_COLUMN_NOTE = "Note";
+    public static final String ORDER_COLUMN_NUM_TABLE = "tableNum";
+    private static final String QUERY_SELECT_ALL = "SELECT * FROM " + ORDER_TABLE + ";";
     private static final String QUERY_DROP_ORDER_TABLE =
             "DROP TABLE IF EXISTS " + ORDER_TABLE + ";";
     private static final String QUERY_CREATE_ORDER_TABLE =
             "CREATE TABLE " + ORDER_TABLE + " (" +
             ORDER_COLUMN_ID + " INTEGER PRIMARY KEY, " +
             ORDER_COLUMN_COUNT + " INTEGER, " +
+            ORDER_COLUMN_NOTE + " TEXT, " +
             ORDER_COLUMN_NUM_TABLE + " INTEGER);";
 
     public DatabaseOrderHelper(Context context, String name,
@@ -48,7 +49,7 @@ public class DatabaseOrderHelper extends SQLiteOpenHelper {
         db.execSQL(QUERY_CREATE_ORDER_TABLE);
     }
 
-    public static ArrayList<OrderEntry> readOreder(SQLiteDatabase db){
+    public static ArrayList<OrderEntry> readOrder(SQLiteDatabase db){
         ArrayList<OrderEntry> orderEntries = new ArrayList<>();
         Cursor c = db.rawQuery(QUERY_SELECT_ALL, null);
 
@@ -58,6 +59,7 @@ public class DatabaseOrderHelper extends SQLiteOpenHelper {
             orderEntry.count = c.getInt(c.getColumnIndex(ORDER_COLUMN_COUNT));
             orderEntry.numTable = c.getInt(
                     c.getColumnIndex(ORDER_COLUMN_NUM_TABLE));
+            orderEntry.note = c.getString(c.getColumnIndex(ORDER_COLUMN_NOTE));
             orderEntries.add(orderEntry);
         }
 

@@ -16,4 +16,10 @@ public class ReadyWaitMessageProcessor extends LostConnectable {
     public int state() {
         return NetworkService.STATE_READY_WAIT;
     }
+
+    @Override
+    public void onOrderMade() {
+        mHandler.changeState(new ReadyMessageProcessor(mHandler),
+                NetworkService.MESSAGE_ORDER_MADE);
+    }
 }

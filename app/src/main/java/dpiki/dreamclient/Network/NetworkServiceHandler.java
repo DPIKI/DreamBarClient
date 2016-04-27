@@ -75,6 +75,10 @@ public class NetworkServiceHandler extends Handler {
                 processor.onSendOrder();
                 break;
 
+            case NetworkService.MESSAGE_ORDER_MADE:
+                processor.onOrderMade();
+                break;
+
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:
                 clearResources();
                 changeState(new DisconnectedMessageProcessor(this),

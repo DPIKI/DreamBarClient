@@ -17,7 +17,6 @@ public class NetworkService extends Service {
 
     // Имена полей в intent'ах ресиверу
     public static final String INTENT_STATE_CURR= "currState";
-    public static final String INTENT_STATE_PREV = "prevState";
     public static final String INTENT_STATE_CHANGE_REASON = "reason";
 
     // Сообщения для рабочего потока
@@ -124,6 +123,12 @@ public class NetworkService extends Service {
 
     public static Boolean parseIp(String ip) {
         return ip.matches("^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))\\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([1-9]?[0-9]))$");
+    }
+
+    public void sendOrder() {
+        Message msg = handler.obtainMessage();
+        msg.what = NetworkService.MESSAGE_SEND_ORDER;
+        handler.sendMessage(msg);
     }
 
     public class NetworkServiceBinder extends Binder {
