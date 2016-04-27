@@ -59,6 +59,7 @@ public class NetworkService extends Service {
     public static final int RESPONSE_ERROR_INVALID_COURSE_ID = 8;
     public static final int RESPONSE_ERROR_ACCESS_DENIED_AUTH = 9;
     public static final int RESPONSE_ERROR_ACCESS_DENIED_SYNC = 10;
+    public static final int RESPONSE_CHECK_CONNECTION = 11;
 
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
