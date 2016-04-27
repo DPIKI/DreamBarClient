@@ -60,10 +60,13 @@ public class NetworkServiceWriter extends Thread {
 
             // Пишем их в сокет
             byte[] strRequestJSONData = requestJSONData.toString().getBytes();
-            ByteBuffer sizeBuffer = ByteBuffer.allocateDirect(4);
-            sizeBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            sizeBuffer.putInt(0, strRequestJSONData.length);
-            os.write(sizeBuffer.array());
+            byte[] sizeByteArray = new byte[4];
+            int size = strRequestJSONData.length;
+            sizeByteArray[0] = (byte)(size & 0xff);
+            sizeByteArray[1] = (byte)((size >>> 8) & 0xff);
+            sizeByteArray[2] = (byte)((size >>> 16) & 0xff);
+            sizeByteArray[3] = (byte)((size >>> 24) & 0xff);
+            os.write(sizeByteArray);
             os.write(strRequestJSONData);
             os.flush();
 

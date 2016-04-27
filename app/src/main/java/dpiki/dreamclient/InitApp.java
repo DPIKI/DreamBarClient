@@ -14,16 +14,6 @@ public class InitApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Singleton.InitInstance();
-
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try {
-            Singleton.menuFetch(db);
-        }
-        finally {
-            db.close();
-        }
 
         // На всякий случай запускаем сетевой сервис
         Intent intent = new Intent(getApplicationContext(), NetworkService.class);
