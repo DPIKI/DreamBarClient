@@ -11,14 +11,17 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import dpiki.dreamclient.Database.DatabaseMenuHelper;
 import dpiki.dreamclient.Network.BaseNetworkListener;
@@ -33,13 +36,15 @@ import dpiki.dreamclient.SettingsActivity.SettingsActivity;
  */
 public class MenuActivity  extends AppCompatActivity {
 
-    public ArrayList<String> category;
+    public ArrayList<String> categories;
     public int checkedPosition = 0;
     public String hash;
+    public ArrayList<MenuEntry> menuEntryArrayList;
 
     public RelativeLayout progressLayout;
     public DrawerLayout drawerLayout;
     public ListView drawerListView;
+    public ListView menuNameListView;
 
     NetworkServiceMessageReceiver receiver;
     NetworkService networkService;
@@ -71,6 +76,7 @@ public class MenuActivity  extends AppCompatActivity {
         receiver = new NetworkServiceMessageReceiver(listener);
         registerReceiver(receiver, new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
 
+        Log.d("CheckPos: ", "In onResume" + checkedPosition);
         Intent intent = new Intent(this, NetworkService.class);
         bindService(intent, connection, BIND_AUTO_CREATE);
     }
@@ -78,6 +84,7 @@ public class MenuActivity  extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d("CheckPos: ", "In onPause" + checkedPosition);
         unregisterReceiver(receiver);
         unbindService(connection);
     }
@@ -89,16 +96,27 @@ public class MenuActivity  extends AppCompatActivity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
         drawerListView = (ListView) findViewById(R.id.lv_left_drawer);
+        menuNameListView = (ListView) findViewById(R.id.lv_menu_name);
         isServiceConnected = false;
+
+        Log.d("CheckPos: ", "In onCreate" + checkedPosition);
+        drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+        menuNameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            }
+        });
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
+       Log.d("CheckPos: ", "In onRestoreInstanceState do saved.getInt()" + checkedPosition);
        String savedHash = savedInstanceState.getString(getString(R.string.s_pref_key_hash));
        hash = savedHash;
        checkedPosition = savedInstanceState.getInt("currentIndex");
+       Log.d("CheckPos: ", "In onRestoreInstanceState posle saved.getInt()" + checkedPosition);
     }
 
     @Override
@@ -109,6 +127,7 @@ public class MenuActivity  extends AppCompatActivity {
         String curHash = preferences.getString(getString(R.string.s_pref_key_hash), "");
         outState.putString(getString(R.string.s_pref_key_hash), curHash);
         outState.putInt("currentIndex", checkedPosition);
+        Log.d("CheckPos: ", "In onSaveInstanceState" + checkedPosition);
     }
 
     //  Слушатель для элементов списка в выдвижной панели
@@ -120,13 +139,17 @@ public class MenuActivity  extends AppCompatActivity {
     }
 
     private void selectItem(int position) {
-        DatabaseMenuHelper dbHelper = new DatabaseMenuHelper(this);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try {
-
-       }finally {
-            db.close();
+        checkedPosition = position;
+        ArrayList<MenuEntry> menuEntriesByCategory;
+        if (position!=0) {
+            String category = categories.get(position);
+            menuEntriesByCategory = getNameMenuByCategory(menuEntryArrayList, category);
+        }else {
+            menuEntriesByCategory = menuEntryArrayList;
         }
+        MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
+                menuEntriesByCategory);
+        menuNameListView.setAdapter(menuListAdapter);
         drawerLayout.closeDrawers();
     }
 
@@ -144,12 +167,28 @@ public class MenuActivity  extends AppCompatActivity {
                     checkedPosition = 0;
                 }
 
+                Log.d("CheckPos: ", "In onServiceConnected" + checkedPosition);
                 drawerLayout.setVisibility(View.VISIBLE);
                 progressLayout.setVisibility(View.GONE);
                 // TODO : инициализация меню
+                DatabaseMenuHelper databaseMenuHelper = new DatabaseMenuHelper(MenuActivity.this);
+                SQLiteDatabase db = databaseMenuHelper.getReadableDatabase();
+
+                try {
+                    menuEntryArrayList = DatabaseMenuHelper.readMenu(db);
+                } finally {
+                    db.close();
+                }
+                MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
+                        menuEntryArrayList);
+                menuNameListView.setAdapter(menuListAdapter);
+                categories = getCategory(menuEntryArrayList);
+                drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
+                        R.layout.activity_menu_drawer_list_item, categories));
             }
             else {
-
+                drawerLayout.setVisibility(View.GONE);
+                progressLayout.setVisibility(View.VISIBLE);
             }
         }
 
@@ -175,7 +214,14 @@ public class MenuActivity  extends AppCompatActivity {
             DatabaseMenuHelper dbHelper = new DatabaseMenuHelper(MenuActivity.this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             try {
+                menuEntryArrayList = DatabaseMenuHelper.readMenu(db);
+                MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
+                        menuEntryArrayList);
+                menuNameListView.setAdapter(menuListAdapter);
 
+                categories = getCategory(menuEntryArrayList);
+                drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
+                    R.layout.activity_menu_drawer_list_item, categories));
             } finally {
                 db.close();
             }
@@ -189,4 +235,39 @@ public class MenuActivity  extends AppCompatActivity {
         }
     };
 
+    private ArrayList<MenuEntry> getNameMenuByCategory(ArrayList<MenuEntry> menuEntries,
+                                                       String category){
+        ArrayList<MenuEntry> listMenu  = new ArrayList<>();
+
+        for(int i = 0; i < menuEntries.size(); i++) {
+            MenuEntry menuEntry = menuEntries.get(i);
+            if (menuEntry.category.equals(category.toString())){
+                listMenu.add(menuEntry);
+            }
+        }
+
+        return listMenu;
+    }
+
+    private ArrayList<String> getCategory(ArrayList<MenuEntry> menuEntries){
+        ArrayList<String> categories = new ArrayList<>();
+        boolean isExist = false;
+
+        categories.add("Все категории");
+
+        Iterator<MenuEntry> i = menuEntries.iterator();
+        while (i.hasNext()){
+            String category = i.next().category;
+            isExist = false;
+            for (int k = 0; k < categories.size() && !isExist; k++){
+                if (category.equals(categories.get(k))){
+                    isExist = true;
+                }
+            }
+            if (!isExist){
+                categories.add(category);
+            }
+        }
+        return categories;
+    }
 }
