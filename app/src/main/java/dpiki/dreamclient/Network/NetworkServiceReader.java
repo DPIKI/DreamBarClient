@@ -1,7 +1,9 @@
 package dpiki.dreamclient.Network;
 
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 
 import dpiki.dreamclient.Database.DatabaseMenuHelper;
 import dpiki.dreamclient.MenuActivity.MenuEntry;
+import dpiki.dreamclient.R;
 
 /**
  * Created by User on 26.03.2016.
@@ -196,7 +199,10 @@ public class NetworkServiceReader extends Thread {
             for (byte aDigest : digest) {
                 sb.append(String.format("%02X", aDigest));
             }
-            handler.settings.hash = sb.toString();
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(handler.context);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString(handler.context.getString(R.string.s_pref_key_hash), sb.toString());
+            editor.commit();
         }
         catch (JSONException | NoSuchAlgorithmException e) {
             throw new IOException();

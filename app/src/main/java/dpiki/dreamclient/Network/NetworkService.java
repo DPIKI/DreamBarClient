@@ -88,7 +88,6 @@ public class NetworkService extends Service {
         settings.isServiceRunning = pref.getBoolean(getString(R.string.s_pref_key_running), false);
         settings.password = pref.getString(getString(R.string.s_pref_key_password), "password");
         settings.name = pref.getString(getString(R.string.s_pref_key_name), "");
-        settings.hash = pref.getString("menuHash", "");
 
         // Вешаем слушателя изменения SharedPreferences
         pref.registerOnSharedPreferenceChangeListener(listener);
@@ -112,8 +111,6 @@ public class NetworkService extends Service {
         // Убираем слушателя изменения SharedPreferences
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.unregisterOnSharedPreferenceChangeListener(listener);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("menuHash", settings.hash);
     }
 
     // ---------------------------- Interface to application ----------------------------
