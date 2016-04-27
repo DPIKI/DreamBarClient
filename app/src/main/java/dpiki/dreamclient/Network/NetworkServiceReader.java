@@ -51,6 +51,9 @@ public class NetworkServiceReader extends Thread {
                 ReceivedData receivedData = readMessage();
                 int responseCode = receivedData.root.getInt(KEY_RESPONSE_CODE);
 
+                if (responseCode == NetworkService.RESPONSE_CHECK_CONNECTION)
+                    continue;
+
                 // Шлем сообщения в зависимости от кода ответа
                 Message msg = handler.obtainMessage();
                 switch (responseCode) {
@@ -83,6 +86,10 @@ public class NetworkServiceReader extends Thread {
                     case NetworkService.RESPONSE_ERROR_INVALID_REQUEST:
                     case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_AUTH:
                     case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_SYNC:
+                        msg.what = NetworkService.MESSAGE_LOST_CONNECTION;
+                        break;
+
+                    default:
                         msg.what = NetworkService.MESSAGE_LOST_CONNECTION;
                         break;
                 }
