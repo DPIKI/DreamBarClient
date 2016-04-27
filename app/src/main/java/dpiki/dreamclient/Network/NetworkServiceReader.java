@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -16,8 +15,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-import dpiki.dreamclient.DatabaseHelper;
-import dpiki.dreamclient.MenuEntry;
+import dpiki.dreamclient.Database.DatabaseMenuHelper;
+import dpiki.dreamclient.MenuActivity.MenuEntry;
 
 /**
  * Created by User on 26.03.2016.
@@ -174,11 +173,11 @@ public class NetworkServiceReader extends Thread {
             }
 
             // Записываем меню в базу
-            DatabaseHelper helper = new DatabaseHelper(handler.context);
+            DatabaseMenuHelper helper = new DatabaseMenuHelper(handler.context);
             SQLiteDatabase db = helper.getWritableDatabase();
             try {
-                DatabaseHelper.clearMenu(db);
-                DatabaseHelper.writeMenuEntries(db, menuEntries);
+                DatabaseMenuHelper.clearMenu(db);
+                DatabaseMenuHelper.writeMenuEntries(db, menuEntries);
             }
             finally {
                 db.close();

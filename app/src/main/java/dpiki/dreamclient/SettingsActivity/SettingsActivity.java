@@ -1,23 +1,14 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.SettingsActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
 
 import dpiki.dreamclient.Network.NetworkService;
+import dpiki.dreamclient.R;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 

@@ -1,4 +1,4 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.OrderActivity;
 
 import android.view.MotionEvent;
 

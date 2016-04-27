@@ -1,4 +1,4 @@
-package dpiki.dreamclient;
+package dpiki.dreamclient.SettingsActivity;
 
 /**
  * Created by prog1 on 21.04.2016.
