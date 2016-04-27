@@ -1,5 +1,7 @@
 package dpiki.dreamclient.Network;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import org.json.JSONException;
@@ -8,8 +10,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.ArrayList;
+
+import dpiki.dreamclient.Database.DatabaseOrderHelper;
+import dpiki.dreamclient.OrderActivity.OrderEntry;
 
 /**
  * Created by User on 30.03.2016.
@@ -19,13 +23,16 @@ public class NetworkServiceWriter extends Thread {
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_NAME = "name";
     public static final String KEY_HASH = "hash";
+    public static final String KEY_ORDER = "orders";
 
     Socket socket;
     Bundle requestData;
+    Context context;
 
-    public NetworkServiceWriter(Socket s, Bundle b) {
+    public NetworkServiceWriter(Context c, Socket s, Bundle b) {
         socket = s;
         requestData = b;
+        context = c;
     }
 
     @Override
@@ -55,6 +62,30 @@ public class NetworkServiceWriter extends Thread {
                     break;
 
                 case NetworkService.ACT_MAKE_ORDER:
+                    StringBuilder strOrder = new StringBuilder();
+                    DatabaseOrderHelper helper = new DatabaseOrderHelper(context);
+                    SQLiteDatabase db = helper.getReadableDatabase();
+                    try {
+                        ArrayList<OrderEntry> order = DatabaseOrderHelper.readOrder(db);
+                        if (!order.isEmpty()) {
+                            for (OrderEntry entry : order) {
+                                strOrder.append(Integer.toString(entry.id))
+                                        .append(";")
+                                        .append(Integer.toString(entry.count))
+                                        .append(";")
+                                        .append(Integer.toString(entry.numTable))
+                                        .append(";").append(entry.note)
+                                        .append("\n");
+                            }
+                            strOrder.deleteCharAt(strOrder.length() - 1);
+                        }
+                    }
+                    finally {
+                        db.close();
+                    }
+
+                    requestJSONData.put(KEY_ORDER, strOrder.toString());
+
                     break;
             }
 

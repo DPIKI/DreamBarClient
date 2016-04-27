@@ -1,8 +1,10 @@
 package dpiki.dreamclient.OrderActivity;
 
-import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,6 +23,9 @@ import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
 
 public class OrderActivity extends AppCompatActivity {
+
+    NetworkService networkService;
+    Boolean isServiceConnected;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -76,6 +81,7 @@ public class OrderActivity extends AppCompatActivity {
 
         listView.setAdapter(orderListAdapter);
 
+        isServiceConnected = false;
     }
 
     @Override
@@ -84,12 +90,17 @@ public class OrderActivity extends AppCompatActivity {
 
         receiver = new NetworkServiceMessageReceiver(listener);
         registerReceiver(receiver, new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
+
+        Intent intent = new Intent(this, NetworkService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+
+        unbindService(connection);
     }
 
     public void onClickSendOrder(View view){
@@ -97,10 +108,14 @@ public class OrderActivity extends AppCompatActivity {
         startActivity(intent);
     }
     public void  onClick(View view){
-        final Dialog dialog = new Dialog(this);
+        /*final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.activity_order_dialog);
         dialog.setTitle("Стол №3");
-        dialog.show();
+        dialog.show();*/
+
+        if (isServiceConnected) {
+            networkService.sendOrder();
+        }
     }
 
     public void fill(){
@@ -109,4 +124,19 @@ public class OrderActivity extends AppCompatActivity {
                     "заметки для барменаSASAsdfsdcksmdkcmsdimciksdmicmsidmcismiiimdcd"));
         }
     }
-}
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
+            isServiceConnected = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            networkService = null;
+            isServiceConnected = false;
+        }
+    };
+
+};

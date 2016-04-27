@@ -32,17 +32,17 @@ public class SyncWaitMessageProcessor extends LostConnectable {
 
     @Override
     public void onInvalidHash() {
+        // Меняем состояние
+        mHandler.changeState(new MenuWaitMessageProcessor(mHandler),
+                NetworkService.MESSAGE_INVALID_HASH);
+
         // Формируем данные для отправки
         Bundle bundle = new Bundle();
         bundle.putInt(NetworkServiceWriter.KEY_ACTION_CODE, NetworkService.ACT_MENU);
 
         // Выводим их
-        NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.socket, bundle);
+        NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
         writer.start();
-
-        // Меняем состояние
-        mHandler.changeState(new MenuWaitMessageProcessor(mHandler),
-                NetworkService.MESSAGE_INVALID_HASH);
 
         Log.d("SWMP", "Sync invalid hash");
     }

@@ -53,7 +53,7 @@ public class ConnectingMessageProcessor extends Disconnectable {
                     NetworkService.MESSAGE_CONNECT);
 
             // Запускаем поток
-            NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.socket, bundle);
+            NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
             writer.start();
         }
         catch (IOException e) {

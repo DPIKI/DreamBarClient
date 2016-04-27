@@ -11,13 +11,11 @@ public interface IMessageProcessor {
     void onDisconnect();
     void onLostConnection();
     void onConnect();
-    void onAuth();
     void onAuthSuccess();
     void onWrongPassword();
-    void onSync();
     void onSyncSuccess();
     void onInvalidHash();
-    void onMenu();
     void onMenuGot();
     void onSendOrder();
+    void onOrderMade();
 }

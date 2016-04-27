@@ -34,16 +34,16 @@ public class AuthWaitMessageProcessor extends LostConnectable {
     public void onAuthSuccess() {
         Log.d("AWMP", "onAuthSuccess");
 
-        Bundle bundle = new Bundle();
-        bundle.putInt(NetworkServiceWriter.KEY_ACTION_CODE, NetworkService.ACT_CHECK_SYNC);
-        bundle.putString(NetworkServiceWriter.KEY_HASH, mHandler.settings.hash);
-
         // Меняем состояние
         mHandler.changeState(new SyncWaitMessageProcessor(mHandler),
                 NetworkService.MESSAGE_AUTH_SUCCESS);
 
+        Bundle bundle = new Bundle();
+        bundle.putInt(NetworkServiceWriter.KEY_ACTION_CODE, NetworkService.ACT_CHECK_SYNC);
+        bundle.putString(NetworkServiceWriter.KEY_HASH, mHandler.settings.hash);
+
         // Запускаем поток, который выведет сообщение в сеть
-        NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.socket, bundle);
+        NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
         writer.start();
 
     }
