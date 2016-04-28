@@ -38,7 +38,7 @@
                 android:layout_weight="1"
                 android:singleLine="false"
                 android:textStyle="bold"
-                android:onClick="onClick" />
+                android:onClick="onClickNewOrder" />
 
             <Button
                 android:layout_width="match_parent"

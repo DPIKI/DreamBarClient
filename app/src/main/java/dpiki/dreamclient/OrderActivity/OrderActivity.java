@@ -1,17 +1,21 @@
 package dpiki.dreamclient.OrderActivity;
 
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -89,6 +93,14 @@ public class OrderActivity extends AppCompatActivity {
 
         OrderListAdapter orderListAdapter = new OrderListAdapter(this, orderEntries);
 
+         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+               if (position == 0){
+                   startActivity(new Intent(OrderActivity.this, MenuActivity.class));
+               }
+            }
+        });
         listView.setAdapter(orderListAdapter);
 
         isServiceConnected = false;
@@ -114,19 +126,41 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void onClickSendOrder(View view){
-        Intent intent = new Intent(this, MenuActivity.class);
-        startActivity(intent);
+       if (isServiceConnected) {
+            networkService.sendOrder();
+        }
     }
 
-    public void  onClick(View view){
+    public void  onClickNewOrder(View view){
         /*final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.activity_order_dialog);
         dialog.setTitle("Стол №3");
         dialog.show();*/
 
-        if (isServiceConnected) {
-            networkService.sendOrder();
-        }
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Новый заказ");
+        alertDialog.setMessage("Вы дейтсвительно хотите создать новый заказ? (Прримечание: Текущий заказ будет удален)");
+        alertDialog.setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+                DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
+                SQLiteDatabase database = databaseHelper.getWritableDatabase();
+                try {
+                    DatabaseOrderWorker.clearOrder(database);
+                }finally {
+                    database.close();
+                }
+            }
+        });
+
+        alertDialog.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+            }
+        });
+        alertDialog.show();
+
+
+        //Intent intent = new Intent(this, MenuActivity.class);
+        //startActivity(intent);
     }
 
     private ServiceConnection connection = new ServiceConnection() {

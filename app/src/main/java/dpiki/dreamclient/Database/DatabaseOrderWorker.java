@@ -88,7 +88,7 @@ public class DatabaseOrderWorker {
         }
     }
 
-    public static void clearMenu(SQLiteDatabase db) {
+    public static void clearOrder(SQLiteDatabase db) {
         db.execSQL(QUERY_DROP_ORDER_TABLE);
         db.execSQL(QUERY_CREATE_ORDER_TABLE);
     }
