@@ -55,6 +55,9 @@ public class ConnectingMessageProcessor extends Disconnectable {
             // Запускаем поток
             NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
             writer.start();
+
+            mHandler.mTimerTicks = 0;
+            sendMessageToHandler(NetworkService.MESSAGE_TICK, 1000);
         }
         catch (IOException e) {
             // Говорим переподключиться

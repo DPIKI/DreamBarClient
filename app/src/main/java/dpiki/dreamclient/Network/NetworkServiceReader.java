@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,8 +55,7 @@ public class NetworkServiceReader extends Thread {
                 ReceivedData receivedData = readMessage();
                 int responseCode = receivedData.root.getInt(KEY_RESPONSE_CODE);
 
-                if (responseCode == NetworkService.RESPONSE_CHECK_CONNECTION)
-                    continue;
+                Log.d("NetworkService", "responseCode = " + Integer.toString(responseCode));
 
                 // Шлем сообщения в зависимости от кода ответа
                 Message msg = handler.obtainMessage();
@@ -85,11 +85,8 @@ public class NetworkServiceReader extends Thread {
                         msg.what = NetworkService.MESSAGE_WRONG_PASSWORD;
                         break;
 
-                    case NetworkService.RESPONSE_ERROR_INVALID_COURSE_ID: // TODO: запилить обработку неправильного id блюда
-                    case NetworkService.RESPONSE_ERROR_INVALID_REQUEST:
-                    case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_AUTH:
-                    case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_SYNC:
-                        msg.what = NetworkService.MESSAGE_LOST_CONNECTION;
+                    case NetworkService.RESPONSE_I_AM_HERE:
+                        msg.what = NetworkService.MESSAGE_I_AM_HERE;
                         break;
 
                     default:

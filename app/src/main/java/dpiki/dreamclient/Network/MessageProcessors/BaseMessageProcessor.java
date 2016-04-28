@@ -25,6 +25,8 @@ public abstract class BaseMessageProcessor implements IMessageProcessor {
     @Override public void onMenuGot() {}
     @Override public void onSendOrder() {}
     @Override public void onOrderMade() {}
+    @Override public void onTick() {}
+    @Override public void onIAmHere() {}
 
     protected void sendMessageToHandler(int message) {
         Message msg = mHandler.obtainMessage();
