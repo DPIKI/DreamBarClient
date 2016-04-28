@@ -88,6 +88,12 @@ public class DatabaseOrderWorker {
         }
     }
 
+    public static void updateCount(SQLiteDatabase db, int rowid, int new_count) {
+        ContentValues values = new ContentValues();
+        values.put(ORDER_COLUMN_COUNT, new_count);
+        db.update(ORDER_TABLE, values, "rowid == " + Integer.toString(rowid), null);
+    }
+
     public static void clearOrder(SQLiteDatabase db) {
         db.execSQL(QUERY_DROP_ORDER_TABLE);
         db.execSQL(QUERY_CREATE_ORDER_TABLE);

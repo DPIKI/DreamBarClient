@@ -112,7 +112,7 @@ public class OrderActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.ov_pb_text_view);
         listView = (ListView) findViewById(R.id.lv_orders);
 
-        View headerView = getLayoutInflater().inflate(
+        final View headerView = getLayoutInflater().inflate(
             R.layout.activity_order_header, null);
         listView.addHeaderView(headerView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -120,6 +120,20 @@ public class OrderActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0){
                     startActivity(new Intent(OrderActivity.this, MenuActivity.class));
+                }
+                else {
+                    DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
+                    SQLiteDatabase db = helper.getWritableDatabase();
+                    OrderEntry entry = orderEntries.get(position - 1);
+                    try {
+                        DatabaseOrderWorker.updateCount(db, entry.rowId, entry.count + 1);
+                    }
+                    finally {
+                        db.close();
+                    }
+                    entry.count++;
+                    OrderListAdapter adapter = new OrderListAdapter(OrderActivity.this, orderEntries);
+                    listView.setAdapter(adapter);
                 }
             }
         });
