@@ -8,6 +8,7 @@ import android.os.Message;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Timer;
 
 import dpiki.dreamclient.Network.MessageProcessors.DisconnectedMessageProcessor;
 import dpiki.dreamclient.Network.MessageProcessors.IMessageProcessor;
@@ -28,6 +29,9 @@ public class NetworkServiceHandler extends Handler {
 
     // Обработчик сообщений для текущего состояния
     private IMessageProcessor processor;
+
+    // Счетчик тиков таймера
+    public int mTimerTicks = 0;
 
     NetworkServiceHandler(Looper looper, Context ctx, NetworkServiceSettings stngs) {
         super(looper);
@@ -77,6 +81,14 @@ public class NetworkServiceHandler extends Handler {
 
             case NetworkService.MESSAGE_ORDER_MADE:
                 processor.onOrderMade();
+                break;
+
+            case NetworkService.MESSAGE_TICK:
+                processor.onTick();
+                break;
+
+            case NetworkService.MESSAGE_I_AM_HERE:
+                processor.onIAmHere();
                 break;
 
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:

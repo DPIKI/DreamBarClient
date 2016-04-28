@@ -1,7 +1,10 @@
 package dpiki.dreamclient.Network;
 
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Message;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 
 import dpiki.dreamclient.Database.DatabaseMenuWorker;
 import dpiki.dreamclient.MenuActivity.MenuEntry;
+import dpiki.dreamclient.R;
 
 /**
  * Created by User on 26.03.2016.
@@ -51,8 +55,7 @@ public class NetworkServiceReader extends Thread {
                 ReceivedData receivedData = readMessage();
                 int responseCode = receivedData.root.getInt(KEY_RESPONSE_CODE);
 
-                if (responseCode == NetworkService.RESPONSE_CHECK_CONNECTION)
-                    continue;
+                Log.d("NetworkService", "responseCode = " + Integer.toString(responseCode));
 
                 // Шлем сообщения в зависимости от кода ответа
                 Message msg = handler.obtainMessage();
@@ -82,11 +85,8 @@ public class NetworkServiceReader extends Thread {
                         msg.what = NetworkService.MESSAGE_WRONG_PASSWORD;
                         break;
 
-                    case NetworkService.RESPONSE_ERROR_INVALID_COURSE_ID: // TODO: запилить обработку неправильного id блюда
-                    case NetworkService.RESPONSE_ERROR_INVALID_REQUEST:
-                    case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_AUTH:
-                    case NetworkService.RESPONSE_ERROR_ACCESS_DENIED_SYNC:
-                        msg.what = NetworkService.MESSAGE_LOST_CONNECTION;
+                    case NetworkService.RESPONSE_I_AM_HERE:
+                        msg.what = NetworkService.MESSAGE_I_AM_HERE;
                         break;
 
                     default:
@@ -196,7 +196,10 @@ public class NetworkServiceReader extends Thread {
             for (byte aDigest : digest) {
                 sb.append(String.format("%02X", aDigest));
             }
-            handler.settings.hash = sb.toString();
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(handler.context);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString(handler.context.getString(R.string.s_pref_key_hash), sb.toString());
+            editor.commit();
         }
         catch (JSONException | NoSuchAlgorithmException e) {
             throw new IOException();

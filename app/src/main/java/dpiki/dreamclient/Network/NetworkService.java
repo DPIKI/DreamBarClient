@@ -31,6 +31,8 @@ public class NetworkService extends Service {
     public static final int MESSAGE_MENU_GOT = 8;
     public static final int MESSAGE_SEND_ORDER = 9;
     public static final int MESSAGE_ORDER_MADE = 10;
+    public static final int MESSAGE_TICK = 11;
+    public static final int MESSAGE_I_AM_HERE = 12;
 
     // Состояния
     public static final int STATE_DISCONNECTED = 0;
@@ -47,6 +49,7 @@ public class NetworkService extends Service {
     public static final int ACT_CHECK_SYNC = 2;
     public static final int ACT_MENU = 3;
     public static final int ACT_MAKE_ORDER = 4;
+    public static final int ACT_CHECK_CONNECTION = 5;
 
     // Коды ответов
     public static final int RESPONSE_AUTH_SUCCESS = 1;
@@ -59,7 +62,7 @@ public class NetworkService extends Service {
     public static final int RESPONSE_ERROR_INVALID_COURSE_ID = 8;
     public static final int RESPONSE_ERROR_ACCESS_DENIED_AUTH = 9;
     public static final int RESPONSE_ERROR_ACCESS_DENIED_SYNC = 10;
-    public static final int RESPONSE_CHECK_CONNECTION = 11;
+    public static final int RESPONSE_I_AM_HERE = 11;
 
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
@@ -88,7 +91,6 @@ public class NetworkService extends Service {
         settings.isServiceRunning = pref.getBoolean(getString(R.string.s_pref_key_running), false);
         settings.password = pref.getString(getString(R.string.s_pref_key_password), "password");
         settings.name = pref.getString(getString(R.string.s_pref_key_name), "");
-        settings.hash = pref.getString("menuHash", "");
 
         // Вешаем слушателя изменения SharedPreferences
         pref.registerOnSharedPreferenceChangeListener(listener);
@@ -112,8 +114,6 @@ public class NetworkService extends Service {
         // Убираем слушателя изменения SharedPreferences
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.unregisterOnSharedPreferenceChangeListener(listener);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("menuHash", settings.hash);
     }
 
     // ---------------------------- Interface to application ----------------------------

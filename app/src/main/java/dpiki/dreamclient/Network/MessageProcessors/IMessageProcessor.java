@@ -18,4 +18,6 @@ public interface IMessageProcessor {
     void onMenuGot();
     void onSendOrder();
     void onOrderMade();
+    void onTick();
+    void onIAmHere();
 }
