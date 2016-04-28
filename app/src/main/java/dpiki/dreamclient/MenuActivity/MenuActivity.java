@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseMenuWorker;
@@ -42,7 +43,7 @@ public class MenuActivity  extends AppCompatActivity {
 
     public ArrayList<String> categories;
     public int checkedPosition = 0;
-    public String hash;
+    public String selectedCategory;
     public ArrayList<MenuEntry> menuEntryArrayList;
     public ArrayList<MenuEntry> menuEntriesByCategory;
 
@@ -106,41 +107,21 @@ public class MenuActivity  extends AppCompatActivity {
 
          Log.d("CheckPos: ", "In onCreate" + checkedPosition);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
-
-        menuNameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
-                SQLiteDatabase database = databaseHelper.getWritableDatabase();
-                MenuEntry menuEntry = menuEntryArrayList.get(position);
-                OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 17,
-                        "");
-                DatabaseOrderWorker.writeOrderEntry(database, orderEntry);
-                database.close();
-            }
-        });
+        menuNameListView.setOnItemClickListener(new ListMenuClickListener());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-       Log.d("CheckPos: ", "In onRestoreInstanceState do saved.getInt()" + checkedPosition);
-       String savedHash = savedInstanceState.getString(getString(R.string.s_pref_key_hash));
-       hash = savedHash;
-       checkedPosition = savedInstanceState.getInt("currentIndex");
-       Log.d("CheckPos: ", "In onRestoreInstanceState posle saved.getInt()" + checkedPosition);
+       selectedCategory = savedInstanceState.getString("checkedCategory");
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String curHash = preferences.getString(getString(R.string.s_pref_key_hash), "");
-        outState.putString(getString(R.string.s_pref_key_hash), curHash);
-        outState.putInt("currentIndex", checkedPosition);
-        Log.d("CheckPos: ", "In onSaveInstanceState" + checkedPosition);
+        outState.putString("checkedCategory", categories.get(checkedPosition));
     }
 
     //  Слушатель для элементов списка в выдвижной панели
@@ -149,6 +130,19 @@ public class MenuActivity  extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
         }
+    }
+
+    private class ListMenuClickListener implements ListView.OnItemClickListener{
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
+                SQLiteDatabase database = databaseHelper.getWritableDatabase();
+
+                MenuEntry menuEntry = menuEntriesByCategory.get(position);
+                OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 0, "");
+                DatabaseOrderWorker.writeOrderEntry(database, orderEntry);
+                database.close();
+            }
     }
 
     private void selectItem(int position) {
@@ -171,29 +165,22 @@ public class MenuActivity  extends AppCompatActivity {
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            networkService = ((NetworkService.NetworkServiceBinder)service).getServiceInstance();
+            networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
-            if (networkService.state() == NetworkService.STATE_READY  ||
-                networkService.state() == NetworkService.STATE_READY_WAIT) {
-                SharedPreferences preferences =
-                        PreferenceManager.getDefaultSharedPreferences(MenuActivity.this);
-                String currentHash = preferences.getString(getString(R.string.s_pref_key_hash), "");
-                if (!currentHash.equals(hash)) {
-                    checkedPosition = 0;
-                }
+            if (networkService.state() == NetworkService.STATE_READY ||
+                    networkService.state() == NetworkService.STATE_READY_WAIT) {
 
-                Log.d("CheckPos: ", "In onServiceConnected" + checkedPosition);
                 drawerLayout.setVisibility(View.VISIBLE);
                 progressLayout.setVisibility(View.GONE);
                 // TODO : инициализация меню
                 DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
                 SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
                 try {
                     menuEntryArrayList = DatabaseMenuWorker.readMenu(db);
                 } finally {
                     db.close();
                 }
+
                 MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
                         menuEntryArrayList);
                 menuNameListView.setAdapter(menuListAdapter);
@@ -201,8 +188,22 @@ public class MenuActivity  extends AppCompatActivity {
                 categories = getCategory(menuEntryArrayList);
                 drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
                         R.layout.activity_menu_drawer_list_item, categories));
-            }
-            else {
+                int indexPosition = -1;
+                for (int i = 0; i < categories.size(); i++) {
+                    String category = categories.get(i);
+                    if (category.equals(selectedCategory)) {
+                        indexPosition = i;
+                    }
+                }
+
+                drawerListView = (ListView) findViewById(R.id.lv_left_drawer);
+                if (indexPosition != -1) {
+                    drawerListView.setSelection(indexPosition);
+                } else {
+                    drawerListView.setSelection(0);
+                }
+
+            } else {
                 drawerLayout.setVisibility(View.GONE);
                 progressLayout.setVisibility(View.VISIBLE);
             }
@@ -238,6 +239,22 @@ public class MenuActivity  extends AppCompatActivity {
                 categories = getCategory(menuEntryArrayList);
                 drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
                     R.layout.activity_menu_drawer_list_item, categories));
+
+                int indexPosition = -1;
+                for (int i = 0; i < categories.size(); i++) {
+                    String category = categories.get(i);
+                    if (category.equals(selectedCategory)) {
+                        indexPosition = i;
+                    }
+                }
+
+                drawerListView = (ListView) findViewById(R.id.lv_left_drawer);
+                if (indexPosition != -1) {
+                    drawerListView.setSelection(indexPosition);
+                } else {
+                    drawerListView.setSelection(0);
+                }
+
                 Toast.makeText(MenuActivity.this, "Обновилось меню", Toast.LENGTH_LONG).show();
             } finally {
                 db.close();
