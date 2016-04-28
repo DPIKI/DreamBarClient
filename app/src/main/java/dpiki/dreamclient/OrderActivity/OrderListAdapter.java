@@ -55,7 +55,6 @@ public class OrderListAdapter extends BaseAdapter {
                     parent, false);
         }
 
-
         OrderEntry order = getOrderEntry(position);
 
         ((TextView) view.findViewById(R.id.tv_order_name)).setText(
