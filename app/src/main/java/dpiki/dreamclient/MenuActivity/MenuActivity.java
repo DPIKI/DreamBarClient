@@ -19,12 +19,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import dpiki.dreamclient.Database.DatabaseMenuHelper;
-import dpiki.dreamclient.Database.DatabaseOrderHelper;
+import dpiki.dreamclient.Database.DatabaseHelper;
+import dpiki.dreamclient.Database.DatabaseMenuWorker;
+import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
@@ -42,6 +44,7 @@ public class MenuActivity  extends AppCompatActivity {
     public int checkedPosition = 0;
     public String hash;
     public ArrayList<MenuEntry> menuEntryArrayList;
+    public ArrayList<MenuEntry> menuEntriesByCategory;
 
     public RelativeLayout progressLayout;
     public DrawerLayout drawerLayout;
@@ -101,23 +104,17 @@ public class MenuActivity  extends AppCompatActivity {
         menuNameListView = (ListView) findViewById(R.id.lv_menu_name);
         isServiceConnected = false;
 
-        //
-        DatabaseOrderHelper databaseOrderHelper = new DatabaseOrderHelper(MenuActivity.this);
-        SQLiteDatabase database = databaseOrderHelper.getWritableDatabase();
-        DatabaseOrderHelper.clearMenu(database);
-        database.close();
-        //
-        Log.d("CheckPos: ", "In onCreate" + checkedPosition);
+         Log.d("CheckPos: ", "In onCreate" + checkedPosition);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
         menuNameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DatabaseOrderHelper databaseOrderHelper = new DatabaseOrderHelper(MenuActivity.this);
-                SQLiteDatabase database = databaseOrderHelper.getWritableDatabase();
+                DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
+                SQLiteDatabase database = databaseHelper.getWritableDatabase();
                 MenuEntry menuEntry = menuEntryArrayList.get(position);
                 OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 17,
-                        "что-то в заметках");
-                DatabaseOrderHelper.writeOrderEntry(database, orderEntry);
+                        "");
+                DatabaseOrderWorker.writeOrderEntry(database, orderEntry);
                 database.close();
             }
         });
@@ -154,17 +151,18 @@ public class MenuActivity  extends AppCompatActivity {
     }
 
     private void selectItem(int position) {
+        MenuListAdapter menuListAdapter;
         checkedPosition = position;
-        ArrayList<MenuEntry> menuEntriesByCategory;
         if (position!=0) {
             String category = categories.get(position);
             menuEntriesByCategory = getNameMenuByCategory(menuEntryArrayList, category);
+            menuListAdapter = new MenuListAdapter(MenuActivity.this,
+                    menuEntriesByCategory);
         }else {
             menuEntriesByCategory = menuEntryArrayList;
+            menuListAdapter = new MenuListAdapter(MenuActivity.this,
+                    menuEntriesByCategory);
         }
-        menuEntryArrayList = menuEntriesByCategory;
-        MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
-                menuEntryArrayList);
         menuNameListView.setAdapter(menuListAdapter);
         drawerLayout.closeDrawers();
     }
@@ -187,17 +185,18 @@ public class MenuActivity  extends AppCompatActivity {
                 drawerLayout.setVisibility(View.VISIBLE);
                 progressLayout.setVisibility(View.GONE);
                 // TODO : инициализация меню
-                DatabaseMenuHelper databaseMenuHelper = new DatabaseMenuHelper(MenuActivity.this);
-                SQLiteDatabase db = databaseMenuHelper.getReadableDatabase();
+                DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
+                SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
                 try {
-                    menuEntryArrayList = DatabaseMenuHelper.readMenu(db);
+                    menuEntryArrayList = DatabaseMenuWorker.readMenu(db);
                 } finally {
                     db.close();
                 }
                 MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
                         menuEntryArrayList);
                 menuNameListView.setAdapter(menuListAdapter);
+
                 categories = getCategory(menuEntryArrayList);
                 drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
                         R.layout.activity_menu_drawer_list_item, categories));
@@ -227,10 +226,10 @@ public class MenuActivity  extends AppCompatActivity {
         @Override
         public void onReady() {
             // TODO : update data
-            DatabaseMenuHelper dbHelper = new DatabaseMenuHelper(MenuActivity.this);
+            DatabaseHelper dbHelper = new DatabaseHelper(MenuActivity.this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             try {
-                menuEntryArrayList = DatabaseMenuHelper.readMenu(db);
+                menuEntryArrayList = DatabaseMenuWorker.readMenu(db);
                 MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
                         menuEntryArrayList);
                 menuNameListView.setAdapter(menuListAdapter);
@@ -238,6 +237,7 @@ public class MenuActivity  extends AppCompatActivity {
                 categories = getCategory(menuEntryArrayList);
                 drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
                     R.layout.activity_menu_drawer_list_item, categories));
+                Toast.makeText(MenuActivity.this, "Обновилось меню", Toast.LENGTH_LONG).show();
             } finally {
                 db.close();
             }

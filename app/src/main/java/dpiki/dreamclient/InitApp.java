@@ -2,9 +2,7 @@ package dpiki.dreamclient;
 
 import android.app.Application;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 
-import dpiki.dreamclient.Database.DatabaseOrderHelper;
 import dpiki.dreamclient.Network.NetworkService;
 
 /**
@@ -20,8 +18,5 @@ public class InitApp extends Application {
         Intent intent = new Intent(getApplicationContext(), NetworkService.class);
         startService(intent);
 
-        DatabaseOrderHelper helper = new DatabaseOrderHelper(this);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        db.close();
     }
 }

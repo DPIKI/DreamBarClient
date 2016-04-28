@@ -15,7 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-import dpiki.dreamclient.Database.DatabaseMenuHelper;
+import dpiki.dreamclient.Database.DatabaseMenuWorker;
 import dpiki.dreamclient.MenuActivity.MenuEntry;
 
 /**
@@ -179,11 +179,11 @@ public class NetworkServiceReader extends Thread {
             }
 
             // Записываем меню в базу
-            DatabaseMenuHelper helper = new DatabaseMenuHelper(handler.context);
+            DatabaseMenuWorker helper = new DatabaseMenuWorker(handler.context);
             SQLiteDatabase db = helper.getWritableDatabase();
             try {
-                DatabaseMenuHelper.clearMenu(db);
-                DatabaseMenuHelper.writeMenuEntries(db, menuEntries);
+                DatabaseMenuWorker.clearMenu(db);
+                DatabaseMenuWorker.writeMenuEntries(db, menuEntries);
             }
             finally {
                 db.close();

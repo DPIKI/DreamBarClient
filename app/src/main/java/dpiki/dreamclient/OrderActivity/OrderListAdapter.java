@@ -67,7 +67,6 @@ public class OrderListAdapter extends BaseAdapter {
              ((TextView) view.findViewById(R.id.tv_note)).setText(
                      "Без заметок");
         }
-        //TODO: Дописать отображение в ImageView
 
         return view;
     }

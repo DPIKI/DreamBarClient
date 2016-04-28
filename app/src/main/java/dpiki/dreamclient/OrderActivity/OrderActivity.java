@@ -15,8 +15,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import dpiki.dreamclient.Database.DatabaseMenuHelper;
-import dpiki.dreamclient.Database.DatabaseOrderHelper;
+import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.MenuActivity.MenuActivity;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
@@ -126,9 +125,9 @@ public class OrderActivity extends AppCompatActivity {
             orderEntries.add(new OrderEntry(i,"элемент меню " + (i+7),i+3,i+12,
                     "заметки для бармена"));
         }*/
-        DatabaseOrderHelper databaseOrderHelper = new DatabaseOrderHelper(OrderActivity.this);
+        DatabaseOrderWorker databaseOrderHelper = new DatabaseOrderWorker(OrderActivity.this);
         SQLiteDatabase database = databaseOrderHelper.getReadableDatabase();
-        orderEntries = DatabaseOrderHelper.readOrder(database);
+        orderEntries = DatabaseOrderWorker.readOrder(database);
         for(int i = 0; i < orderEntries.size(); i++){
             orderEntries.get(i).note = "заметки:";
         }

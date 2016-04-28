@@ -4,6 +4,7 @@ package dpiki.dreamclient.OrderActivity;
  * Created by prog1 on 24.04.2016.
  */
 public class OrderEntry {
+    public int rowId;
     public int id;
     public String name;
     public int count;
