@@ -10,11 +10,14 @@ import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -33,6 +36,10 @@ public class OrderActivity extends AppCompatActivity {
 
     NetworkService networkService;
     Boolean isServiceConnected;
+    ListView listView;
+    RelativeLayout orderLayout;
+    RelativeLayout progressBarLayout;
+    TextView textView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -59,17 +66,39 @@ public class OrderActivity extends AppCompatActivity {
     private INetworkServiceListener listener = new BaseNetworkListener() {
         @Override
         public void onConnecting() {
-            // TODO : progress bar
+            textView.setText("Connecting...");
+            viewProgress();
+            Log.d("OrderActivity", "onConnecting");
         }
 
         @Override
         public void onReady() {
-            // TODO : update data
+            updateAdapter();
+            viewOrder();
+            Log.d("OrderActivity", "onReady");
         }
 
         @Override
         public void onWrongPassword() {
-            // TODO : надпись
+            Log.d("OrderActivity", "onWrongPassword");
+        }
+
+        @Override
+        public void onOrderMade() {
+            DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
+            SQLiteDatabase db = helper.getWritableDatabase();
+            try {
+                DatabaseOrderWorker.clearOrder(db);
+            }
+            finally {
+                db.close();
+            }
+
+            updateAdapter();
+            viewOrder();
+
+            Toast.makeText(OrderActivity.this, "Заказ отправлен", Toast.LENGTH_SHORT).show();
+            Log.d("OrderActivity", "onOrderMade");
         }
     };
 
@@ -78,65 +107,54 @@ public class OrderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order);
 
-        ListView listView = (ListView) findViewById(R.id.lv_orders);
+        orderLayout = (RelativeLayout) findViewById(R.id.ov_order_layout);
+        progressBarLayout = (RelativeLayout) findViewById(R.id.ov_pb_layout);
+        textView = (TextView) findViewById(R.id.ov_pb_text_view);
+        listView = (ListView) findViewById(R.id.lv_orders);
+
         View headerView = getLayoutInflater().inflate(
-                R.layout.activity_order_header, null);
+            R.layout.activity_order_header, null);
         listView.addHeaderView(headerView);
-
-        DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        SQLiteDatabase database = databaseHelper.getReadableDatabase();
-        try {
-            orderEntries = DatabaseOrderWorker.readOrder(database);
-        }finally {
-            database.close();
-        }
-
-        OrderListAdapter orderListAdapter = new OrderListAdapter(this, orderEntries);
-
-         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               if (position == 0){
-                   startActivity(new Intent(OrderActivity.this, MenuActivity.class));
-               }
+                if (position == 0){
+                    startActivity(new Intent(OrderActivity.this, MenuActivity.class));
+                }
             }
         });
-        listView.setAdapter(orderListAdapter);
 
         isServiceConnected = false;
+        Log.d("OrderActivity", "onCreate");
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-
         receiver = new NetworkServiceMessageReceiver(listener);
         registerReceiver(receiver, new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
-
         Intent intent = new Intent(this, NetworkService.class);
         bindService(intent, connection, BIND_AUTO_CREATE);
+        Log.d("OrderActivity", "onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
-
         unbindService(connection);
+        Log.d("OrderActivity", "onPause");
     }
 
     public void onClickSendOrder(View view){
-       if (isServiceConnected) {
+        if (isServiceConnected) {
             networkService.sendOrder();
+            textView.setText("Отправляем заказ...");
+            viewProgress();
         }
     }
 
     public void  onClickNewOrder(View view){
-        /*final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.activity_order_dialog);
-        dialog.setTitle("Стол №3");
-        dialog.show();*/
-
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Новый заказ");
         alertDialog.setMessage("Вы дейтсвительно хотите создать новый заказ? (Прримечание: Текущий заказ будет удален)");
@@ -157,10 +175,6 @@ public class OrderActivity extends AppCompatActivity {
             }
         });
         alertDialog.show();
-
-
-        //Intent intent = new Intent(this, MenuActivity.class);
-        //startActivity(intent);
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -168,13 +182,47 @@ public class OrderActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
+
+            if (networkService.state() == NetworkService.STATE_READY ||
+                networkService.state() == NetworkService.STATE_READY_WAIT) {
+                updateAdapter();
+                viewOrder();
+            }
+            else {
+                textView.setText("Connecting...");
+                viewProgress();
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             networkService = null;
             isServiceConnected = false;
+            textView.setText("Connecting...");
+            viewProgress();
         }
     };
 
+    void updateAdapter() {
+        DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
+        SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        try {
+            orderEntries = DatabaseOrderWorker.readOrder(database);
+        } finally {
+            database.close();
+        }
+
+        OrderListAdapter orderListAdapter = new OrderListAdapter(OrderActivity.this, orderEntries);
+        listView.setAdapter(orderListAdapter);
+    }
+
+    void viewProgress() {
+        orderLayout.setVisibility(View.GONE);
+        progressBarLayout.setVisibility(View.VISIBLE);
+    }
+
+    void viewOrder() {
+        orderLayout.setVisibility(View.VISIBLE);
+        progressBarLayout.setVisibility(View.GONE);
+    }
 };

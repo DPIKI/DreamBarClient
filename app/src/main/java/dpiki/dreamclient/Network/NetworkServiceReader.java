@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseMenuWorker;
+import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.MenuActivity.MenuEntry;
 import dpiki.dreamclient.R;
 
@@ -185,6 +186,7 @@ public class NetworkServiceReader extends Thread {
             try {
                 DatabaseMenuWorker.clearMenu(db);
                 DatabaseMenuWorker.writeMenuEntries(db, menuEntries);
+                DatabaseOrderWorker.clearOrder(db);
             }
             finally {
                 db.close();
