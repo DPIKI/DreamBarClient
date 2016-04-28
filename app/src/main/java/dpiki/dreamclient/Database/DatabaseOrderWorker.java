@@ -26,7 +26,7 @@ public class DatabaseOrderWorker {
             "DROP TABLE IF EXISTS " + ORDER_TABLE + ";";
     public static final String QUERY_CREATE_ORDER_TABLE =
             "CREATE TABLE " + ORDER_TABLE + " (" +
-                    ORDER_COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                    ORDER_COLUMN_ID + " INTEGER, " +
                     ORDER_COLUMN_COUNT + " INTEGER, " +
                     ORDER_COLUMN_NOTE + " TEXT, " +
                     ORDER_COLUMN_NUM_TABLE + " INTEGER);";
@@ -37,7 +37,7 @@ public class DatabaseOrderWorker {
             ORDER_TABLE + "." + ORDER_COLUMN_COUNT + ", " +
             ORDER_TABLE + "." + ORDER_COLUMN_NOTE + ", " +
             ORDER_TABLE + "." + ORDER_COLUMN_NUM_TABLE + ", " +
-            DatabaseMenuWorker.MENU_COLUMN_NAME +
+            DatabaseMenuWorker.MENU_TABLE + "." + DatabaseMenuWorker.MENU_COLUMN_NAME +
             " FROM " + ORDER_TABLE + " INNER JOIN " + DatabaseMenuWorker.MENU_TABLE +
             " WHERE " + ORDER_TABLE + "." + ORDER_COLUMN_ID + " == " +
             DatabaseMenuWorker.MENU_TABLE + "." + DatabaseMenuWorker.MENU_COLUMN_ID + ";";
@@ -54,6 +54,7 @@ public class DatabaseOrderWorker {
             orderEntry.count = c.getInt(2);
             orderEntry.note = c.getString(3);
             orderEntry.numTable = c.getInt(4);
+            orderEntry.name = c.getString(5);
             orderEntries.add(orderEntry);
         }
 
@@ -65,6 +66,7 @@ public class DatabaseOrderWorker {
                                        OrderEntry orderEntry){
         ContentValues values = new ContentValues();
         values.put(ORDER_COLUMN_ID, orderEntry.id);
+        values.put(ORDER_COLUMN_NOTE, orderEntry.note);
         values.put(ORDER_COLUMN_COUNT, orderEntry.count);
         values.put(ORDER_COLUMN_NUM_TABLE, orderEntry.numTable);
 

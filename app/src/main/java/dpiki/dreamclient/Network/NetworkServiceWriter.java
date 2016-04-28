@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.OrderActivity.OrderEntry;
 
@@ -63,7 +64,7 @@ public class NetworkServiceWriter extends Thread {
 
                 case NetworkService.ACT_MAKE_ORDER:
                     StringBuilder strOrder = new StringBuilder();
-                    DatabaseOrderWorker helper = new DatabaseOrderWorker(context);
+                    DatabaseHelper helper = new DatabaseHelper(context);
                     SQLiteDatabase db = helper.getReadableDatabase();
                     try {
                         ArrayList<OrderEntry> order = DatabaseOrderWorker.readOrder(db);

@@ -106,6 +106,7 @@ public class MenuActivity  extends AppCompatActivity {
 
          Log.d("CheckPos: ", "In onCreate" + checkedPosition);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+
         menuNameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

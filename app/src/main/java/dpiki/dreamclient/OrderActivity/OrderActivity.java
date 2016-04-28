@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.MenuActivity.MenuActivity;
 import dpiki.dreamclient.Network.BaseNetworkListener;
@@ -74,10 +75,17 @@ public class OrderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_order);
 
         ListView listView = (ListView) findViewById(R.id.lv_orders);
-        fill();
         View headerView = getLayoutInflater().inflate(
                 R.layout.activity_order_header, null);
         listView.addHeaderView(headerView);
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        try {
+            orderEntries = DatabaseOrderWorker.readOrder(database);
+        }finally {
+            database.close();
+        }
 
         OrderListAdapter orderListAdapter = new OrderListAdapter(this, orderEntries);
 
@@ -109,6 +117,7 @@ public class OrderActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MenuActivity.class);
         startActivity(intent);
     }
+
     public void  onClick(View view){
         /*final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.activity_order_dialog);
@@ -118,20 +127,6 @@ public class OrderActivity extends AppCompatActivity {
         if (isServiceConnected) {
             networkService.sendOrder();
         }
-    }
-
-    public void fill(){
-        /*for (int i = 1; i<20; i++){
-            orderEntries.add(new OrderEntry(i,"элемент меню " + (i+7),i+3,i+12,
-                    "заметки для бармена"));
-        }*/
-        DatabaseOrderWorker databaseOrderHelper = new DatabaseOrderWorker(OrderActivity.this);
-        SQLiteDatabase database = databaseOrderHelper.getReadableDatabase();
-        orderEntries = DatabaseOrderWorker.readOrder(database);
-        for(int i = 0; i < orderEntries.size(); i++){
-            orderEntries.get(i).note = "заметки:";
-        }
-        database.close();
     }
 
     private ServiceConnection connection = new ServiceConnection() {

@@ -4,6 +4,7 @@
 package dpiki.dreamclient.OrderActivity;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.R;
 
 /**
@@ -53,13 +55,14 @@ public class OrderListAdapter extends BaseAdapter {
                     parent, false);
         }
 
+
         OrderEntry order = getOrderEntry(position);
 
         ((TextView) view.findViewById(R.id.tv_order_name)).setText(
                 "" + order.name);
         ((TextView) view.findViewById(R.id.tv_order_count)).setText(
                 "" + order.count);
-        if (!order.note.equals("")) {
+       if (!order.note.toString().equals("")) {
             ((TextView) view.findViewById(R.id.tv_note)).setText(
                     order.note.toString());
         }
