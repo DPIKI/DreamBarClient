@@ -76,13 +76,22 @@
         android:maxLines="8" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:text="OK"
         android:id="@+id/ov_dialog_btn_ok"
         android:layout_below="@+id/ov_dialog_edit_note"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/ov_dialog_btn_cancel"
+        android:layout_toStartOf="@+id/ov_dialog_btn_cancel" />
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:text="ОТМЕНА"
+        android:id="@+id/ov_dialog_btn_cancel"
+        android:layout_below="@+id/ov_dialog_edit_note"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 

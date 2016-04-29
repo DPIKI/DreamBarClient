@@ -95,6 +95,12 @@ public class DatabaseOrderWorker {
         db.update(ORDER_TABLE, values, "rowid == " + Integer.toString(rowid), null);
     }
 
+    public static void updateTable(SQLiteDatabase db, int tableNum) {
+        ContentValues values = new ContentValues();
+        values.put(ORDER_COLUMN_NUM_TABLE, tableNum);
+        db.update(ORDER_TABLE, values, "", null);
+    }
+
     public static void clearOrder(SQLiteDatabase db) {
         db.execSQL(QUERY_DROP_ORDER_TABLE);
         db.execSQL(QUERY_CREATE_ORDER_TABLE);

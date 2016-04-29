@@ -54,8 +54,14 @@ public class OrderActivity extends AppCompatActivity {
     Button btnDialogInc;
     Button btnDialogDec;
     Button btnDialogOk;
+    Button btnDialogCancel;
     OrderEntry currentOrderEntry;
     int bufCount;
+
+    Dialog selectTableDialog;
+    Button btnStDialogOk;
+    Button btnStDialogCancel;
+    EditText editStDialogTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +94,7 @@ public class OrderActivity extends AppCompatActivity {
         });
 
         dialog = new Dialog(this);
-        dialog.setTitle("Стол 5"); // TODO : запилить выбор стола
+        dialog.setTitle("Редактирование заказа");
         dialog.setContentView(R.layout.activity_order_dialog);
         tvDialogCount = (TextView) dialog.findViewById(R.id.ov_dialog_tv_count);
         tvDialogName = (TextView) dialog.findViewById(R.id.ov_dialog_tv_name);
@@ -96,6 +102,7 @@ public class OrderActivity extends AppCompatActivity {
         btnDialogDec = (Button) dialog.findViewById(R.id.ov_dialog_btn_minus);
         btnDialogInc = (Button) dialog.findViewById(R.id.ov_dialog_btn_plus);
         btnDialogOk = (Button) dialog.findViewById(R.id.ov_dialog_btn_ok);
+        btnDialogCancel = (Button) dialog.findViewById(R.id.ov_dialog_btn_cancel);
 
         btnDialogInc.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +120,7 @@ public class OrderActivity extends AppCompatActivity {
         btnDialogDec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bufCount > 0) {
+                if (bufCount > 1) {
                     bufCount--;
                     tvDialogCount.setText("Количество: " + Integer.toString(bufCount));
                 }
@@ -141,6 +148,48 @@ public class OrderActivity extends AppCompatActivity {
                     db.close();
                 }
                 dialog.dismiss();
+            }
+        });
+
+        btnDialogCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        selectTableDialog = new Dialog(this);
+        selectTableDialog.setTitle("Выберите стол");
+        selectTableDialog.setContentView(R.layout.activity_order_select_table_dialog);
+        btnStDialogCancel = (Button) selectTableDialog.findViewById(R.id.ct_dialog_btn_cancel);
+        btnStDialogOk = (Button) selectTableDialog.findViewById(R.id.ct_dialog_btn_ok);
+        editStDialogTable = (EditText) selectTableDialog.findViewById(R.id.ct_dialog_edit_table);
+
+        btnStDialogOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strTableNum = editStDialogTable.getText().toString();
+                int tableNum = Integer.parseInt(strTableNum);
+
+                DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
+                SQLiteDatabase db = helper.getWritableDatabase();
+                try {
+                    DatabaseOrderWorker.updateTable(db, tableNum);
+                }
+                finally {
+                    db.close();
+                }
+
+                networkService.sendOrder();
+                viewProgress("Отправляем заказ...");
+                selectTableDialog.dismiss();
+            }
+        });
+
+        btnStDialogCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectTableDialog.dismiss();
             }
         });
 
@@ -191,9 +240,8 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void onClickSendOrder(View view) {
-        if (isServiceConnected) {
-            networkService.sendOrder();
-            viewProgress("Отправляем заказ...");
+        if (isServiceConnected && !orderEntries.isEmpty()) {
+            selectTableDialog.show();
         }
     }
 
@@ -211,6 +259,7 @@ public class OrderActivity extends AppCompatActivity {
                     } finally {
                         database.close();
                     }
+                    updateAdapter();
                 }
             });
 
