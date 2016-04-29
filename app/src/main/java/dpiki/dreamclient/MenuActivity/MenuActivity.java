@@ -170,14 +170,14 @@ public class MenuActivity  extends AppCompatActivity {
         tvDialogName = (TextView) editDialog.findViewById(R.id.ov_dialog_tv_name);
         tvDialogCount = (TextView) editDialog.findViewById(R.id.ov_dialog_tv_count);
 
-        /*btnDialogCancel = (Button) editDialog.findViewById(R.id.ov_dialog_btn_cancel);
+        btnDialogCancel = (Button) editDialog.findViewById(R.id.ov_dialog_btn_cancel);
         btnDialogCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editDialog.dismiss();
             }
         });
-        */
+
         btnDialogInc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,7 +217,7 @@ public class MenuActivity  extends AppCompatActivity {
         MenuEntry menuEntry = mMenuEntriesByCategory.get(position);
         newOrderEntry = new OrderEntry(menuEntry.id, menuEntry.name, bufCount, 0, "");
         tvDialogName.setText(newOrderEntry.name);
-        tvDialogCount.setText("" + bufCount);
+        tvDialogCount.setText("Количество: " + bufCount);
         editDialog.show();
     }
 
