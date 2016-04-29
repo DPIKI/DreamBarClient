@@ -1,17 +1,15 @@
 package dpiki.dreamclient.MenuActivity;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,11 +37,12 @@ import dpiki.dreamclient.SettingsActivity.SettingsActivity;
  */
 public class MenuActivity  extends AppCompatActivity {
 
-    public ArrayList<String> categories;
-    public int checkedPosition = 0;
-    public String hash;
-    public ArrayList<MenuEntry> menuEntryArrayList;
-    public ArrayList<MenuEntry> menuEntriesByCategory;
+    private ArrayList<MenuEntry> mFullMenuEntries;
+    private ArrayList<MenuEntry> mMenuEntriesByCategory;
+
+    private ArrayList<String> mCategories;
+    private String mSelectedCategory;
+    private int mIndexSelectedCategory;
 
     public RelativeLayout progressLayout;
     public DrawerLayout drawerLayout;
@@ -77,11 +75,9 @@ public class MenuActivity  extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-
         receiver = new NetworkServiceMessageReceiver(listener);
         registerReceiver(receiver, new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
 
-        Log.d("CheckPos: ", "In onResume" + checkedPosition);
         Intent intent = new Intent(this, NetworkService.class);
         bindService(intent, connection, BIND_AUTO_CREATE);
     }
@@ -89,7 +85,6 @@ public class MenuActivity  extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d("CheckPos: ", "In onPause" + checkedPosition);
         unregisterReceiver(receiver);
         unbindService(connection);
     }
@@ -98,113 +93,67 @@ public class MenuActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
         drawerListView = (ListView) findViewById(R.id.lv_left_drawer);
         menuNameListView = (ListView) findViewById(R.id.lv_menu_name);
+        progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
         isServiceConnected = false;
 
-         Log.d("CheckPos: ", "In onCreate" + checkedPosition);
-        drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+        mIndexSelectedCategory = 0;
+        mSelectedCategory = "Все категории";
 
-        menuNameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
-                SQLiteDatabase database = databaseHelper.getWritableDatabase();
-                MenuEntry menuEntry = menuEntryArrayList.get(position);
-                OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 17,
-                        "");
-                DatabaseOrderWorker.writeOrderEntry(database, orderEntry);
-                database.close();
-            }
-        });
+        drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+        menuNameListView.setOnItemClickListener(new ListMenuClickListener());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-       Log.d("CheckPos: ", "In onRestoreInstanceState do saved.getInt()" + checkedPosition);
-       String savedHash = savedInstanceState.getString(getString(R.string.s_pref_key_hash));
-       hash = savedHash;
-       checkedPosition = savedInstanceState.getInt("currentIndex");
-       Log.d("CheckPos: ", "In onRestoreInstanceState posle saved.getInt()" + checkedPosition);
+        mSelectedCategory = savedInstanceState.getString("selectedCategory");
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String curHash = preferences.getString(getString(R.string.s_pref_key_hash), "");
-        outState.putString(getString(R.string.s_pref_key_hash), curHash);
-        outState.putInt("currentIndex", checkedPosition);
-        Log.d("CheckPos: ", "In onSaveInstanceState" + checkedPosition);
+        outState.putString("selectedCategory", mSelectedCategory);
     }
 
-    //  Слушатель для элементов списка в выдвижной панели
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
+            selectDrawerItem(position);
         }
     }
 
-    private void selectItem(int position) {
-        MenuListAdapter menuListAdapter;
-        checkedPosition = position;
-        if (position!=0) {
-            String category = categories.get(position);
-            menuEntriesByCategory = getNameMenuByCategory(menuEntryArrayList, category);
-            menuListAdapter = new MenuListAdapter(MenuActivity.this,
-                    menuEntriesByCategory);
-        }else {
-            menuEntriesByCategory = menuEntryArrayList;
-            menuListAdapter = new MenuListAdapter(MenuActivity.this,
-                    menuEntriesByCategory);
-        }
-        menuNameListView.setAdapter(menuListAdapter);
+    private void selectDrawerItem(int position) {
+        mIndexSelectedCategory = position;
+        mSelectedCategory = mCategories.get(mIndexSelectedCategory);
+        updateMenuEntriesAdapter(MenuActivity.this);
+
         drawerLayout.closeDrawers();
+    }
+
+    private class ListMenuClickListener implements ListView.OnItemClickListener{
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                addOrder(position);
+            }
     }
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            networkService = ((NetworkService.NetworkServiceBinder)service).getServiceInstance();
+            networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
-            if (networkService.state() == NetworkService.STATE_READY  ||
-                networkService.state() == NetworkService.STATE_READY_WAIT) {
-                SharedPreferences preferences =
-                        PreferenceManager.getDefaultSharedPreferences(MenuActivity.this);
-                String currentHash = preferences.getString(getString(R.string.s_pref_key_hash), "");
-                if (!currentHash.equals(hash)) {
-                    checkedPosition = 0;
-                }
-
-                Log.d("CheckPos: ", "In onServiceConnected" + checkedPosition);
-                drawerLayout.setVisibility(View.VISIBLE);
-                progressLayout.setVisibility(View.GONE);
-                // TODO : инициализация меню
-                DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
-                SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-                try {
-                    menuEntryArrayList = DatabaseMenuWorker.readMenu(db);
-                } finally {
-                    db.close();
-                }
-                MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
-                        menuEntryArrayList);
-                menuNameListView.setAdapter(menuListAdapter);
-
-                categories = getCategory(menuEntryArrayList);
-                drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
-                        R.layout.activity_menu_drawer_list_item, categories));
-            }
-            else {
-                drawerLayout.setVisibility(View.GONE);
-                progressLayout.setVisibility(View.VISIBLE);
+            if (networkService.state() == NetworkService.STATE_READY ||
+                    networkService.state() == NetworkService.STATE_READY_WAIT) {
+                showMenuLayout();
+                initMenu(MenuActivity.this);
+            } else {
+                showProgress();
             }
         }
 
@@ -219,31 +168,15 @@ public class MenuActivity  extends AppCompatActivity {
 
         @Override
         public void onConnecting() {
-            // TODO : progress bar
             drawerLayout.setVisibility(View.GONE);
             progressLayout.setVisibility(View.VISIBLE);
         }
 
         @Override
         public void onReady() {
-            // TODO : update data
-            DatabaseHelper dbHelper = new DatabaseHelper(MenuActivity.this);
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            try {
-                menuEntryArrayList = DatabaseMenuWorker.readMenu(db);
-                MenuListAdapter menuListAdapter = new MenuListAdapter(MenuActivity.this,
-                        menuEntryArrayList);
-                menuNameListView.setAdapter(menuListAdapter);
-
-                categories = getCategory(menuEntryArrayList);
-                drawerListView.setAdapter(new ArrayAdapter<String>(MenuActivity.this,
-                    R.layout.activity_menu_drawer_list_item, categories));
-                Toast.makeText(MenuActivity.this, "Обновилось меню", Toast.LENGTH_LONG).show();
-            } finally {
-                db.close();
-            }
             drawerLayout.setVisibility(View.VISIBLE);
             progressLayout.setVisibility(View.GONE);
+            initMenu(MenuActivity.this);
         }
 
         @Override
@@ -253,39 +186,130 @@ public class MenuActivity  extends AppCompatActivity {
 
     };
 
-    private ArrayList<MenuEntry> getNameMenuByCategory(ArrayList<MenuEntry> menuEntries,
-                                                       String category){
-        ArrayList<MenuEntry> listMenu  = new ArrayList<>();
+    private void showProgress(){
+        drawerLayout.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.VISIBLE);
+    }
 
-        for(int i = 0; i < menuEntries.size(); i++) {
-            MenuEntry menuEntry = menuEntries.get(i);
-            if (menuEntry.category.equals(category.toString())){
-                listMenu.add(menuEntry);
-            }
+    private void showMenuLayout(){
+        progressLayout.setVisibility(View.GONE);
+        drawerLayout.setVisibility(View.VISIBLE);
+    }
+
+    private ArrayList<MenuEntry> readFullListMenuFromDatabase(Context context){
+        ArrayList<MenuEntry> listMenu = new ArrayList<>();
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        try {
+            listMenu = DatabaseMenuWorker.readMenu(database);
+        }finally {
+            database.close();
         }
-
+        if (listMenu.isEmpty()){
+            showProgress();
+        }
         return listMenu;
     }
 
-    private ArrayList<String> getCategory(ArrayList<MenuEntry> menuEntries){
+    private ArrayList<String> getCategories(ArrayList<MenuEntry> fullMenuEntries){
         ArrayList<String> categories = new ArrayList<>();
-        boolean isExist = false;
 
         categories.add("Все категории");
 
-        Iterator<MenuEntry> i = menuEntries.iterator();
-        while (i.hasNext()){
-            String category = i.next().category;
-            isExist = false;
-            for (int k = 0; k < categories.size() && !isExist; k++){
-                if (category.equals(categories.get(k))){
-                    isExist = true;
+        if (fullMenuEntries.size() != 0){
+            Iterator<MenuEntry> iterator = fullMenuEntries.iterator();
+            while (iterator.hasNext()){
+
+                MenuEntry menuEntry = iterator.next();
+                boolean isExist = false;
+
+                Iterator<String> i = categories.iterator();
+                while (i.hasNext() && !isExist){
+
+                    String category = i.next();
+                    if (category.equals(menuEntry.category)){
+                        isExist = true;
+                    }
+                }
+                if (!isExist){
+                    categories.add(menuEntry.category);
                 }
             }
-            if (!isExist){
-                categories.add(category);
-            }
         }
+
         return categories;
     }
+
+    private ArrayList<MenuEntry> getMenuEntriesByCategory(ArrayList<MenuEntry> fullMenuEntries){
+        ArrayList<MenuEntry> menuEntriesByCategory = new ArrayList<>();
+
+        if (mSelectedCategory.equals("Все категории")){
+            menuEntriesByCategory = fullMenuEntries;
+        }
+        else {
+            Iterator<MenuEntry> i = fullMenuEntries.iterator();
+            while (i.hasNext()){
+                MenuEntry menuEntry = i.next();
+                if (menuEntry.category.equals(mSelectedCategory)){
+                    menuEntriesByCategory.add(menuEntry);
+                }
+            }
+            if (menuEntriesByCategory.isEmpty()){
+                menuEntriesByCategory = mFullMenuEntries;
+            }
+        }
+
+        return menuEntriesByCategory;
+    }
+
+    private void initMenu(Context context){
+        updateMenuEntriesAdapter(context);
+        updateCategoriesAdapter(context);
+
+        mIndexSelectedCategory = getIndexSelectedCategory();
+        drawerListView.setItemChecked(mIndexSelectedCategory, true);
+    }
+
+    private int getIndexSelectedCategory(){
+        int selectedIndex = 0;
+
+        if (!mSelectedCategory.equals("Все категории")){
+            for (int i = 0; i < mCategories.size() && selectedIndex == 0; i++){
+                if (mCategories.get(i).equals(mSelectedCategory)){
+                    selectedIndex = i;
+                }
+            }
+        }
+
+        return selectedIndex;
+    }
+
+    private void addOrder(int position){
+        MenuEntry menuEntry = mMenuEntriesByCategory.get(position);
+        OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 0, "");
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        try {
+            DatabaseOrderWorker.writeOrderEntry(database, orderEntry);
+        }finally {
+            database.close();
+        }
+    }
+
+    private void updateMenuEntriesAdapter(Context context){
+        mFullMenuEntries = readFullListMenuFromDatabase(context);
+        mMenuEntriesByCategory = getMenuEntriesByCategory(mFullMenuEntries);
+        MenuListAdapter menuAdapter = new MenuListAdapter(context, mMenuEntriesByCategory);
+        menuNameListView.setAdapter(menuAdapter);
+    }
+
+    private void updateCategoriesAdapter(Context context){
+        mCategories = getCategories(mFullMenuEntries);
+        ArrayAdapter<String> categoriesAdapter = new ArrayAdapter<>(context,
+                R.layout.activity_menu_drawer_list_item, mCategories);
+        drawerListView.setAdapter(categoriesAdapter);
+    }
+
 }
