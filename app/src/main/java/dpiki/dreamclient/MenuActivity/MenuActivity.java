@@ -51,8 +51,6 @@ public class MenuActivity  extends AppCompatActivity {
     private String mSelectedCategory;
     private int mIndexSelectedCategory;
 
-    private int mIndexSelectedItem;
-
     public RelativeLayout progressLayout;
     public DrawerLayout drawerLayout;
     public ListView drawerListView;
@@ -62,6 +60,7 @@ public class MenuActivity  extends AppCompatActivity {
     public Button btnDialogOk;
     public Button btnDialogInc;
     public Button btnDialogDec;
+    public Button btnDialogCancel;
     public EditText editDialogNote;
     public TextView tvDialogName;
     public TextView tvDialogCount;
@@ -171,12 +170,20 @@ public class MenuActivity  extends AppCompatActivity {
         tvDialogName = (TextView) editDialog.findViewById(R.id.ov_dialog_tv_name);
         tvDialogCount = (TextView) editDialog.findViewById(R.id.ov_dialog_tv_count);
 
+        /*btnDialogCancel = (Button) editDialog.findViewById(R.id.ov_dialog_btn_cancel);
+        btnDialogCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editDialog.dismiss();
+            }
+        });
+        */
         btnDialogInc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (bufCount < 1000) {
                     bufCount++;
-                    tvDialogCount.setText("" + bufCount);
+                    tvDialogCount.setText("Количество: " + bufCount);
                 }else {
                     Toast.makeText(MenuActivity.this, "Ебанулся?", Toast.LENGTH_LONG);
                 }
@@ -186,9 +193,9 @@ public class MenuActivity  extends AppCompatActivity {
         btnDialogDec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bufCount > 0) {
+                if (bufCount > 1) {
                     bufCount--;
-                    tvDialogCount.setText("" + bufCount);
+                    tvDialogCount.setText("Количество: " + bufCount);
                 }
             }
         });
@@ -205,9 +212,9 @@ public class MenuActivity  extends AppCompatActivity {
 
     }
 
-    private void showEditDialog(){
+    private void showEditDialog(int position){
         bufCount = 1;
-        MenuEntry menuEntry = mMenuEntriesByCategory.get(mIndexSelectedItem);
+        MenuEntry menuEntry = mMenuEntriesByCategory.get(position);
         newOrderEntry = new OrderEntry(menuEntry.id, menuEntry.name, bufCount, 0, "");
         tvDialogName.setText(newOrderEntry.name);
         tvDialogCount.setText("" + bufCount);
@@ -217,7 +224,7 @@ public class MenuActivity  extends AppCompatActivity {
     private class ListMenuLongClickListener implements ListView.OnItemLongClickListener{
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            showEditDialog();
+            showEditDialog(position);
             return true;
         }
     }
