@@ -61,12 +61,12 @@ public class OrderListAdapter extends BaseAdapter {
                 "" + order.name);
         ((TextView) view.findViewById(R.id.tv_order_count)).setText(
                 "" + order.count);
-       if (!order.note.toString().equals("")) {
+        if (!order.note.toString().equals("")) {
             ((TextView) view.findViewById(R.id.tv_note)).setText(
                     order.note.toString());
         }
         else {
-             ((TextView) view.findViewById(R.id.tv_note)).setText(
+            ((TextView) view.findViewById(R.id.tv_note)).setText(
                      "Без заметок");
         }
 
@@ -76,7 +76,6 @@ public class OrderListAdapter extends BaseAdapter {
     OrderEntry getOrderEntry(int position){
         return ((OrderEntry) getItem(position));
     }
-
 }
 
 

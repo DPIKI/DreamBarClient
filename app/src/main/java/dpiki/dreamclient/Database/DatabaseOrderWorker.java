@@ -88,9 +88,10 @@ public class DatabaseOrderWorker {
         }
     }
 
-    public static void updateCount(SQLiteDatabase db, int rowid, int new_count) {
+    public static void updateOrderNoteAndCount(SQLiteDatabase db, int rowid, String newNote, int newCount) {
         ContentValues values = new ContentValues();
-        values.put(ORDER_COLUMN_COUNT, new_count);
+        values.put(ORDER_COLUMN_COUNT, newCount);
+        values.put(ORDER_COLUMN_NOTE, newNote);
         db.update(ORDER_TABLE, values, "rowid == " + Integer.toString(rowid), null);
     }
 
