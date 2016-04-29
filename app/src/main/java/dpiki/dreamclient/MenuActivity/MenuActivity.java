@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -105,6 +106,7 @@ public class MenuActivity  extends AppCompatActivity {
 
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
         menuNameListView.setOnItemClickListener(new ListMenuClickListener());
+        menuNameListView.setOnItemLongClickListener(new ListMenuLongClickListener());
     }
 
     @Override
@@ -134,6 +136,18 @@ public class MenuActivity  extends AppCompatActivity {
         updateMenuEntriesAdapter(MenuActivity.this);
 
         drawerLayout.closeDrawers();
+    }
+
+    private void showEditDialog(int position){
+
+    }
+
+    private class ListMenuLongClickListener implements ListView.OnItemLongClickListener{
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            showEditDialog(position);
+            return true;
+        }
     }
 
     private class ListMenuClickListener implements ListView.OnItemClickListener{
