@@ -23,10 +23,12 @@ import java.util.Iterator;
 
 import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseMenuWorker;
+import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.Network.NetworkServiceMessageReceiver;
+import dpiki.dreamclient.OrderActivity.OrderEntry;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
 
@@ -137,7 +139,7 @@ public class MenuActivity  extends AppCompatActivity {
     private class ListMenuClickListener implements ListView.OnItemClickListener{
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                addOrder(position);
             }
     }
 
@@ -253,7 +255,9 @@ public class MenuActivity  extends AppCompatActivity {
                     menuEntriesByCategory.add(menuEntry);
                 }
             }
-
+            if (menuEntriesByCategory.isEmpty()){
+                menuEntriesByCategory = mFullMenuEntries;
+            }
         }
 
         return menuEntriesByCategory;
@@ -279,6 +283,19 @@ public class MenuActivity  extends AppCompatActivity {
         }
 
         return selectedIndex;
+    }
+
+    private void addOrder(int position){
+        MenuEntry menuEntry = mMenuEntriesByCategory.get(position);
+        OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 0, "");
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        try {
+            DatabaseOrderWorker.writeOrderEntry(database, orderEntry);
+        }finally {
+            database.close();
+        }
     }
 
     private void updateMenuEntriesAdapter(Context context){
