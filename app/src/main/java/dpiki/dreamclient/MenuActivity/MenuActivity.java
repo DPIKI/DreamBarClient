@@ -1,9 +1,11 @@
 package dpiki.dreamclient.MenuActivity;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.widget.DrawerLayout;
@@ -12,11 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import dpiki.dreamclient.Database.DatabaseHelper;
+import dpiki.dreamclient.Database.DatabaseMenuWorker;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
@@ -29,12 +35,12 @@ import dpiki.dreamclient.SettingsActivity.SettingsActivity;
  */
 public class MenuActivity  extends AppCompatActivity {
 
-    public ArrayList<MenuEntry> fullMenuEntries;
-    public ArrayList<MenuEntry> menuEntriesByCategory;
+    private ArrayList<MenuEntry> mFullMenuEntries;
+    private ArrayList<MenuEntry> mMenuEntriesByCategory;
 
-    public ArrayList<String> categories;
-    public String selectedCategory;
-    public int indexSelectedCategory;
+    private ArrayList<String> mCategories;
+    private String mSelectedCategory;
+    private int mIndexSelectedCategory;
 
     public RelativeLayout progressLayout;
     public DrawerLayout drawerLayout;
@@ -92,8 +98,8 @@ public class MenuActivity  extends AppCompatActivity {
         progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
         isServiceConnected = false;
 
-        indexSelectedCategory = 0;
-        selectedCategory = "";
+        mIndexSelectedCategory = 0;
+        mSelectedCategory = "Все категории";
 
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
         menuNameListView.setOnItemClickListener(new ListMenuClickListener());
@@ -103,24 +109,27 @@ public class MenuActivity  extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        selectedCategory = savedInstanceState.getString("selectedCategory");
+        mSelectedCategory = savedInstanceState.getString("selectedCategory");
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString("selectedCategory", selectedCategory);
+        outState.putString("selectedCategory", mSelectedCategory);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
+            selectDrawerItem(position);
         }
     }
 
-    private void selectItem(int position) {
+    private void selectDrawerItem(int position) {
+        mIndexSelectedCategory = position;
+        mSelectedCategory = mCategories.get(mIndexSelectedCategory);
+        updateMenuEntriesAdapter(MenuActivity.this);
 
         drawerLayout.closeDrawers();
     }
@@ -139,13 +148,10 @@ public class MenuActivity  extends AppCompatActivity {
             isServiceConnected = true;
             if (networkService.state() == NetworkService.STATE_READY ||
                     networkService.state() == NetworkService.STATE_READY_WAIT) {
-                drawerLayout.setVisibility(View.VISIBLE);
-                progressLayout.setVisibility(View.GONE);
-                // TODO : инициализация меню
-
+                showMenuLayout();
+                initMenu(MenuActivity.this);
             } else {
-                drawerLayout.setVisibility(View.GONE);
-                progressLayout.setVisibility(View.VISIBLE);
+                showProgress();
             }
         }
 
@@ -166,9 +172,9 @@ public class MenuActivity  extends AppCompatActivity {
 
         @Override
         public void onReady() {
-            // TODO : update data
-           drawerLayout.setVisibility(View.VISIBLE);
-           progressLayout.setVisibility(View.GONE);
+            drawerLayout.setVisibility(View.VISIBLE);
+            progressLayout.setVisibility(View.GONE);
+            initMenu(MenuActivity.this);
         }
 
         @Override
@@ -177,5 +183,116 @@ public class MenuActivity  extends AppCompatActivity {
         }
 
     };
+
+    private void showProgress(){
+        drawerLayout.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showMenuLayout(){
+        progressLayout.setVisibility(View.GONE);
+        drawerLayout.setVisibility(View.VISIBLE);
+    }
+
+    private ArrayList<MenuEntry> readFullListMenuFromDatabase(Context context){
+        ArrayList<MenuEntry> listMenu = new ArrayList<>();
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        try {
+            listMenu = DatabaseMenuWorker.readMenu(database);
+        }finally {
+            database.close();
+        }
+        if (listMenu.isEmpty()){
+            showProgress();
+        }
+        return listMenu;
+    }
+
+    private ArrayList<String> getCategories(ArrayList<MenuEntry> fullMenuEntries){
+        ArrayList<String> categories = new ArrayList<>();
+
+        categories.add("Все категории");
+
+        if (fullMenuEntries.size() != 0){
+            Iterator<MenuEntry> iterator = fullMenuEntries.iterator();
+            while (iterator.hasNext()){
+
+                MenuEntry menuEntry = iterator.next();
+                boolean isExist = false;
+
+                Iterator<String> i = categories.iterator();
+                while (i.hasNext() && !isExist){
+
+                    String category = i.next();
+                    if (category.equals(menuEntry.category)){
+                        isExist = true;
+                    }
+                }
+                if (!isExist){
+                    categories.add(menuEntry.category);
+                }
+            }
+        }
+
+        return categories;
+    }
+
+    private ArrayList<MenuEntry> getMenuEntriesByCategory(ArrayList<MenuEntry> fullMenuEntries){
+        ArrayList<MenuEntry> menuEntriesByCategory = new ArrayList<>();
+
+        if (mSelectedCategory.equals("Все категории")){
+            menuEntriesByCategory = fullMenuEntries;
+        }
+        else {
+            Iterator<MenuEntry> i = fullMenuEntries.iterator();
+            while (i.hasNext()){
+                MenuEntry menuEntry = i.next();
+                if (menuEntry.category.equals(mSelectedCategory)){
+                    menuEntriesByCategory.add(menuEntry);
+                }
+            }
+
+        }
+
+        return menuEntriesByCategory;
+    }
+
+    private void initMenu(Context context){
+        updateMenuEntriesAdapter(context);
+        updateCategoriesAdapter(context);
+
+        mIndexSelectedCategory = getIndexSelectedCategory();
+        drawerListView.setItemChecked(mIndexSelectedCategory, true);
+    }
+
+    private int getIndexSelectedCategory(){
+        int selectedIndex = 0;
+
+        if (!mSelectedCategory.equals("Все категории")){
+            for (int i = 0; i < mCategories.size() && selectedIndex == 0; i++){
+                if (mCategories.get(i).equals(mSelectedCategory)){
+                    selectedIndex = i;
+                }
+            }
+        }
+
+        return selectedIndex;
+    }
+
+    private void updateMenuEntriesAdapter(Context context){
+        mFullMenuEntries = readFullListMenuFromDatabase(context);
+        mMenuEntriesByCategory = getMenuEntriesByCategory(mFullMenuEntries);
+        MenuListAdapter menuAdapter = new MenuListAdapter(context, mMenuEntriesByCategory);
+        menuNameListView.setAdapter(menuAdapter);
+    }
+
+    private void updateCategoriesAdapter(Context context){
+        mCategories = getCategories(mFullMenuEntries);
+        ArrayAdapter<String> categoriesAdapter = new ArrayAdapter<>(context,
+                R.layout.activity_menu_drawer_list_item, mCategories);
+        drawerListView.setAdapter(categoriesAdapter);
+    }
 
 }
