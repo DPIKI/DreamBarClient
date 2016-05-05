@@ -18,14 +18,15 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="10dp"
-            android:id="@+id/switch_settings"></Switch>
+            android:id="@+id/switch_settings"
+            android:visibility="invisible"></Switch>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/textView2"
+            android:text="Настройки"
+            android:id="@+id/tv_toolbar_title"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />

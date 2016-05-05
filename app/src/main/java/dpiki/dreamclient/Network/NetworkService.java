@@ -4,11 +4,16 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.TreeSet;
 
 import dpiki.dreamclient.R;
 
@@ -67,6 +72,10 @@ public class NetworkService extends Service {
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
     private NetworkServiceSettings settings;
+    private Handler mUiHandler;
+
+    // Список слушателей
+    private HashSet<INetworkServiceListener> subscribers = new HashSet<>();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -83,6 +92,30 @@ public class NetworkService extends Service {
         // Создаем биндер и объект настроек
         binder = new NetworkServiceBinder();
         settings = new NetworkServiceSettings();
+        mUiHandler = new Handler(this.getMainLooper()) {
+
+            @Override
+            public void handleMessage(Message msg) {
+                for (INetworkServiceListener i : subscribers) {
+                    switch (msg.arg2) {
+                        case NetworkService.STATE_CONNECTING:
+                            i.onConnecting();
+                            break;
+
+                        case NetworkService.STATE_AUTH_WRONG_PASSWORD:
+                            i.onWrongPassword();
+                            break;
+
+                        case NetworkService.STATE_READY:
+                            if (msg.what == NetworkService.MESSAGE_SYNC_SUCCESS) {
+                                i.onReady();
+                            } if (msg.what == NetworkService.MESSAGE_ORDER_MADE) {
+                                i.onOrderMade();
+                            }
+                    }
+                }
+            }
+        };
 
         // Читаем сохраненные настройки
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -99,7 +132,8 @@ public class NetworkService extends Service {
         // сообщения от UI потока и дочерних потоков
         HandlerThread thread = new HandlerThread("Working Thread");
         thread.start();
-        handler = new NetworkServiceHandler(thread.getLooper(), getBaseContext(), settings);
+        handler = new NetworkServiceHandler(thread.getLooper(),
+                getBaseContext(), settings, mUiHandler);
 
         // Говорим этому потоку создать соединение, если пользователь разрешил
         if (settings.isServiceRunning)
@@ -136,6 +170,28 @@ public class NetworkService extends Service {
         public NetworkService getServiceInstance() {
             return NetworkService.this;
         }
+    }
+
+    public void subscribe(INetworkServiceListener listener) {
+        subscribers.add(listener);
+        int state = handler.state();
+        switch (state) {
+            case NetworkService.STATE_CONNECTING:
+                listener.onConnecting();
+                break;
+
+            case NetworkService.STATE_AUTH_WRONG_PASSWORD:
+                listener.onWrongPassword();
+                break;
+
+            case NetworkService.STATE_READY:
+                listener.onReady();
+                break;
+        }
+    }
+
+    public void unsubscribe(INetworkServiceListener listener) {
+        subscribers.remove(listener);
     }
 
     // -------------- Support -------------------

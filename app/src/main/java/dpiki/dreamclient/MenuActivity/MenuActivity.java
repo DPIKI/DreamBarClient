@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
@@ -37,7 +36,6 @@ import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
-import dpiki.dreamclient.Network.NetworkServiceMessageReceiver;
 import dpiki.dreamclient.OrderActivity.OrderEntry;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
@@ -70,7 +68,6 @@ public class MenuActivity  extends AppCompatActivity {
     public OrderEntry newOrderEntry;
     public int bufCount;
 
-    NetworkServiceMessageReceiver receiver;
     NetworkService networkService;
     Boolean isServiceConnected;
 
@@ -83,9 +80,8 @@ public class MenuActivity  extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem){
         int id = menuItem.getItemId();
-
         switch (id){
-            case R.id.back:
+            case R.id.settings:
                 startActivity(new Intent(getApplicationContext(),SettingsActivity.class));
                 return true;
             default:
@@ -96,8 +92,6 @@ public class MenuActivity  extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        receiver = new NetworkServiceMessageReceiver(listener);
-        registerReceiver(receiver, new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
 
         Intent intent = new Intent(this, NetworkService.class);
         bindService(intent, connection, BIND_AUTO_CREATE);
@@ -106,7 +100,7 @@ public class MenuActivity  extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
+        networkService.unsubscribe(listener);
         unbindService(connection);
     }
 
@@ -252,13 +246,7 @@ public class MenuActivity  extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
-            if (networkService.state() == NetworkService.STATE_READY ||
-                    networkService.state() == NetworkService.STATE_READY_WAIT) {
-                showMenuLayout();
-                initMenu(MenuActivity.this);
-            } else {
-                showProgress();
-            }
+            networkService.subscribe(listener);
         }
 
         @Override
@@ -286,6 +274,10 @@ public class MenuActivity  extends AppCompatActivity {
             // TODO : надпись
         }
 
+        @Override
+        public void onDisconnected() {
+
+        }
     };
 
     private void showProgress(){
@@ -293,7 +285,7 @@ public class MenuActivity  extends AppCompatActivity {
         progressLayout.setVisibility(View.VISIBLE);
     }
 
-    private void showMenuLayout(){
+    private void showMenuLayout() {
         progressLayout.setVisibility(View.GONE);
         drawerLayout.setVisibility(View.VISIBLE);
     }
@@ -307,9 +299,6 @@ public class MenuActivity  extends AppCompatActivity {
             listMenu = DatabaseMenuWorker.readMenu(database);
         }finally {
             database.close();
-        }
-        if (listMenu.isEmpty()){
-            showProgress();
         }
         return listMenu;
     }
@@ -416,5 +405,4 @@ public class MenuActivity  extends AppCompatActivity {
                 R.layout.activity_menu_drawer_list_item, mCategories);
         drawerListView.setAdapter(categoriesAdapter);
     }
-
 }
