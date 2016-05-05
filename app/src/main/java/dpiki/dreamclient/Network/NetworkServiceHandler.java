@@ -33,11 +33,14 @@ public class NetworkServiceHandler extends Handler {
     // Счетчик тиков таймера
     public int mTimerTicks = 0;
 
-    NetworkServiceHandler(Looper looper, Context ctx, NetworkServiceSettings stngs) {
+    private Handler mUiHandler;
+
+    NetworkServiceHandler(Looper looper, Context ctx, NetworkServiceSettings stngs, Handler uiHandler) {
         super(looper);
         context = ctx;
         settings = stngs;
         processor = new DisconnectedMessageProcessor(this);
+        mUiHandler = uiHandler;
     }
 
     @Override
@@ -117,12 +120,12 @@ public class NetworkServiceHandler extends Handler {
     }
 
     public void changeState(IMessageProcessor p, int reason) {
-        Intent intent = new Intent(NetworkService.ACTION_NETWORK_SERVICE);
-        intent.putExtra("prevState", processor.state());
-        intent.putExtra("currState", p.state());
-        intent.putExtra("reason", reason);
+        Message msg = mUiHandler.obtainMessage();
+        msg.what = reason;
+        msg.arg1 = processor.state();
+        msg.arg2 = p.state();
         processor = p;
-        context.sendBroadcast(intent);
+        mUiHandler.sendMessage(msg);
     }
 
     public int state() {

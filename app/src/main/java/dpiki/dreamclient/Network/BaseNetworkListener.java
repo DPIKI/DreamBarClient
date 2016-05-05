@@ -8,4 +8,5 @@ public class BaseNetworkListener implements INetworkServiceListener {
     public void onWrongPassword() {}
     public void onReady() {}
     public void onOrderMade() {}
+    public void onDisconnected() {}
 }

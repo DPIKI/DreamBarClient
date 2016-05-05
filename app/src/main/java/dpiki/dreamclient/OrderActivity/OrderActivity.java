@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
@@ -31,7 +30,6 @@ import dpiki.dreamclient.MenuActivity.MenuActivity;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
-import dpiki.dreamclient.Network.NetworkServiceMessageReceiver;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
 
@@ -40,7 +38,6 @@ public class OrderActivity extends AppCompatActivity {
     NetworkService networkService;
     Boolean isServiceConnected;
     ArrayList<OrderEntry> orderEntries = new ArrayList<>();
-    NetworkServiceMessageReceiver receiver;
 
     ListView listView;
     RelativeLayout orderLayout;
@@ -74,25 +71,110 @@ public class OrderActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.lv_orders);
         isServiceConnected = false;
 
-        final View headerView = getLayoutInflater().inflate(
-                R.layout.activity_order_header, null);
-        listView.addHeaderView(headerView);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    startActivity(new Intent(OrderActivity.this, MenuActivity.class));
-                } else {
-                    currentOrderEntry = orderEntries.get(position - 1);
-                    bufCount = currentOrderEntry.count;
-                    tvDialogName.setText(currentOrderEntry.name);
-                    tvDialogCount.setText("Количество: " + Integer.toString(currentOrderEntry.count));
-                    editDialogNotes.setText(currentOrderEntry.note);
-                    dialog.show();
-                }
-            }
-        });
+        initListView();
+        initEditDialog();
+        initSelectTableDialog();
 
+        Log.d("OrderActivity", "onCreate");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = new Intent(this, NetworkService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);
+
+        Log.d("OrderActivity", "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        networkService.unsubscribe(listener);
+        unbindService(connection);
+
+        Log.d("OrderActivity", "onPause");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_action_bar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        int id = menuItem.getItemId();
+
+        switch (id) {
+            case R.id.back:
+                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
+    }
+
+    public void onClickSendOrder(View view) {
+        if (isServiceConnected && !orderEntries.isEmpty()) {
+            selectTableDialog.show();
+        }
+    }
+
+    public void onClickNewOrder(View view) {
+
+        if (!orderEntries.isEmpty()) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setTitle("Новый заказ");
+            alertDialog.setMessage("Вы дейтсвительно хотите создать новый заказ? (Примечание: текущий заказ будет удален)");
+            alertDialog.setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int arg1) {
+                    DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
+                    SQLiteDatabase database = databaseHelper.getWritableDatabase();
+                    try {
+                        DatabaseOrderWorker.clearOrder(database);
+                    } finally {
+                        database.close();
+                    }
+                    updateAdapter();
+                }
+            });
+
+            alertDialog.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int arg1) {
+                }
+            });
+            alertDialog.show();
+        }
+    }
+
+    void updateAdapter() {
+        DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
+        SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        try {
+            orderEntries = DatabaseOrderWorker.readOrder(database);
+        } finally {
+            database.close();
+        }
+
+        OrderListAdapter orderListAdapter = new OrderListAdapter(OrderActivity.this, orderEntries);
+        listView.setAdapter(orderListAdapter);
+    }
+
+    void viewProgress(String title) {
+        textView.setText(title);
+        orderLayout.setVisibility(View.GONE);
+        progressBarLayout.setVisibility(View.VISIBLE);
+    }
+
+    void viewOrder() {
+        orderLayout.setVisibility(View.VISIBLE);
+        progressBarLayout.setVisibility(View.GONE);
+    }
+
+    void initEditDialog() {
         dialog = new Dialog(this);
         dialog.setTitle("Редактирование заказа");
         dialog.setContentView(R.layout.activity_order_dialog);
@@ -157,7 +239,9 @@ public class OrderActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+    }
 
+    void initSelectTableDialog() {
         selectTableDialog = new Dialog(this);
         selectTableDialog.setTitle("Выберите стол");
         selectTableDialog.setContentView(R.layout.activity_order_select_table_dialog);
@@ -192,107 +276,28 @@ public class OrderActivity extends AppCompatActivity {
                 selectTableDialog.dismiss();
             }
         });
-
-        Log.d("OrderActivity", "onCreate");
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        receiver = new NetworkServiceMessageReceiver(listener);
-        registerReceiver(receiver, new IntentFilter(NetworkService.ACTION_NETWORK_SERVICE));
-
-        Intent intent = new Intent(this, NetworkService.class);
-        bindService(intent, connection, BIND_AUTO_CREATE);
-
-        Log.d("OrderActivity", "onResume");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        unregisterReceiver(receiver);
-
-        unbindService(connection);
-
-        Log.d("OrderActivity", "onPause");
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_action_bar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        int id = menuItem.getItemId();
-
-        switch (id) {
-            case R.id.back:
-                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(menuItem);
-        }
-    }
-
-    public void onClickSendOrder(View view) {
-        if (isServiceConnected && !orderEntries.isEmpty()) {
-            selectTableDialog.show();
-        }
-    }
-
-    public void onClickNewOrder(View view) {
-        if (!orderEntries.isEmpty()) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            alertDialog.setTitle("Новый заказ");
-            alertDialog.setMessage("Вы дейтсвительно хотите создать новый заказ? (Примечание: текущий заказ будет удален)");
-            alertDialog.setPositiveButton("Ок", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int arg1) {
-                    DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
-                    SQLiteDatabase database = databaseHelper.getWritableDatabase();
-                    try {
-                        DatabaseOrderWorker.clearOrder(database);
-                    } finally {
-                        database.close();
-                    }
-                    updateAdapter();
+    void initListView() {
+        final View headerView = getLayoutInflater().inflate(
+                R.layout.activity_order_header, null);
+        listView.addHeaderView(headerView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    startActivity(new Intent(OrderActivity.this, MenuActivity.class));
+                } else {
+                    currentOrderEntry = orderEntries.get(position - 1);
+                    bufCount = currentOrderEntry.count;
+                    tvDialogName.setText(currentOrderEntry.name);
+                    tvDialogCount.setText("Количество: " + Integer.toString(currentOrderEntry.count));
+                    editDialogNotes.setText(currentOrderEntry.note);
+                    dialog.show();
                 }
-            });
+            }
+        });
 
-            alertDialog.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int arg1) {
-                }
-            });
-            alertDialog.show();
-        }
-    }
-
-    void updateAdapter() {
-        DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
-        SQLiteDatabase database = databaseHelper.getReadableDatabase();
-        try {
-            orderEntries = DatabaseOrderWorker.readOrder(database);
-        } finally {
-            database.close();
-        }
-
-        OrderListAdapter orderListAdapter = new OrderListAdapter(OrderActivity.this, orderEntries);
-        listView.setAdapter(orderListAdapter);
-    }
-
-    void viewProgress(String title) {
-        textView.setText(title);
-        orderLayout.setVisibility(View.GONE);
-        progressBarLayout.setVisibility(View.VISIBLE);
-    }
-
-    void viewOrder() {
-        orderLayout.setVisibility(View.VISIBLE);
-        progressBarLayout.setVisibility(View.GONE);
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -301,14 +306,7 @@ public class OrderActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
-
-            if (networkService.state() == NetworkService.STATE_READY ||
-                    networkService.state() == NetworkService.STATE_READY_WAIT) {
-                updateAdapter();
-                viewOrder();
-            } else {
-                viewProgress("Connecting...");
-            }
+            networkService.subscribe(listener);
         }
 
         @Override
