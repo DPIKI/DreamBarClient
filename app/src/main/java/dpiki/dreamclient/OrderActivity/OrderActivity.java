@@ -45,9 +45,11 @@ public class OrderActivity extends AppCompatActivity {
     ArrayList<OrderEntry> orderEntries = new ArrayList<>();
 
     ListView listView;
+    TextView textView;
     RelativeLayout orderLayout;
     RelativeLayout progressBarLayout;
-    TextView textView;
+    RelativeLayout wrongPasswordLayout;
+    RelativeLayout disconnectedLayout;
 
     Dialog dialog;
     TextView tvDialogCount;
@@ -65,6 +67,8 @@ public class OrderActivity extends AppCompatActivity {
     Button btnStDialogCancel;
     EditText editStDialogTable;
 
+    Switch sw;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -73,6 +77,8 @@ public class OrderActivity extends AppCompatActivity {
 
         orderLayout = (RelativeLayout) findViewById(R.id.ov_order_layout);
         progressBarLayout = (RelativeLayout) findViewById(R.id.ov_pb_layout);
+        disconnectedLayout = (RelativeLayout) findViewById(R.id.ov_disconnected_layout);
+        wrongPasswordLayout = (RelativeLayout) findViewById(R.id.ov_wrong_password_layout);
         textView = (TextView) findViewById(R.id.ov_pb_text_view);
         listView = (ListView) findViewById(R.id.lv_orders);
         isServiceConnected = false;
@@ -158,6 +164,14 @@ public class OrderActivity extends AppCompatActivity {
         }
     }
 
+    public void onClickTurnServiceOn(View view) {
+        sw.setChecked(true);
+    }
+
+    public void onClickChangePassword(View view) {
+        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+    }
+
     void updateAdapter() {
         DatabaseHelper databaseHelper = new DatabaseHelper(OrderActivity.this);
         SQLiteDatabase database = databaseHelper.getReadableDatabase();
@@ -173,12 +187,31 @@ public class OrderActivity extends AppCompatActivity {
 
     void viewProgress(String title) {
         textView.setText(title);
+
         orderLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.GONE);
         progressBarLayout.setVisibility(View.VISIBLE);
     }
 
     void viewOrder() {
         orderLayout.setVisibility(View.VISIBLE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.GONE);
+        progressBarLayout.setVisibility(View.GONE);
+    }
+
+    void viewWrongPassword() {
+        orderLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.VISIBLE);
+        disconnectedLayout.setVisibility(View.GONE);
+        progressBarLayout.setVisibility(View.GONE);
+    }
+
+    void viewDisconnected() {
+        orderLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.VISIBLE);
         progressBarLayout.setVisibility(View.GONE);
     }
 
@@ -286,8 +319,8 @@ public class OrderActivity extends AppCompatActivity {
         });
     }
 
-    private void initSwitch(){
-        Switch sw = (Switch) findViewById(R.id.switch_settings);
+    private void initSwitch() {
+        sw = (Switch) findViewById(R.id.switch_settings);
         sw.setVisibility(View.VISIBLE);
         SharedPreferences pref =
                             PreferenceManager.getDefaultSharedPreferences(OrderActivity.this);
@@ -305,7 +338,7 @@ public class OrderActivity extends AppCompatActivity {
             });
     }
 
-    private void initToolbar(){
+    private void initToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_action_bar);
         TextView textView = (TextView) findViewById(R.id.tv_toolbar_title);
         textView.setText("DreamBar");
@@ -355,7 +388,7 @@ public class OrderActivity extends AppCompatActivity {
 
         @Override
         public void onConnecting() {
-            viewProgress("Connecting...");
+            viewProgress("Подключаемся...");
             Log.d("OrderActivity", "onConnecting");
         }
 
@@ -368,6 +401,7 @@ public class OrderActivity extends AppCompatActivity {
 
         @Override
         public void onWrongPassword() {
+            viewWrongPassword();
             Log.d("OrderActivity", "onWrongPassword");
         }
 
@@ -386,6 +420,12 @@ public class OrderActivity extends AppCompatActivity {
 
             Toast.makeText(OrderActivity.this, "Заказ отправлен", Toast.LENGTH_SHORT).show();
             Log.d("OrderActivity", "onOrderMade");
+        }
+
+        @Override
+        public void onDisconnected() {
+            viewDisconnected();
+            Log.d("OrderActivity", "onDisconnected");
         }
     };
 }

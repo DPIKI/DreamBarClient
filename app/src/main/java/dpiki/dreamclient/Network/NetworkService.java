@@ -106,6 +106,10 @@ public class NetworkService extends Service {
                             i.onWrongPassword();
                             break;
 
+                        case NetworkService.STATE_DISCONNECTED:
+                            i.onDisconnected();
+                            break;
+
                         case NetworkService.STATE_READY:
                             if (msg.what == NetworkService.MESSAGE_SYNC_SUCCESS) {
                                 i.onReady();
@@ -176,16 +180,20 @@ public class NetworkService extends Service {
         subscribers.add(listener);
         int state = handler.state();
         switch (state) {
-            case NetworkService.STATE_CONNECTING:
-                listener.onConnecting();
-                break;
-
             case NetworkService.STATE_AUTH_WRONG_PASSWORD:
                 listener.onWrongPassword();
                 break;
 
+            case NetworkService.STATE_DISCONNECTED:
+                listener.onDisconnected();
+                break;
+
             case NetworkService.STATE_READY:
                 listener.onReady();
+                break;
+
+            default:
+                listener.onConnecting();
                 break;
         }
     }
