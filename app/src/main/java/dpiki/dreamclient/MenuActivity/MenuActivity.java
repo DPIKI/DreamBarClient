@@ -1,5 +1,6 @@
 package dpiki.dreamclient.MenuActivity;
 
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -46,6 +53,17 @@ public class MenuActivity  extends AppCompatActivity {
     public DrawerLayout drawerLayout;
     public ListView drawerListView;
     public ListView menuNameListView;
+
+    public Dialog editDialog;
+    public Button btnDialogOk;
+    public Button btnDialogInc;
+    public Button btnDialogDec;
+    public Button btnDialogCancel;
+    public EditText editDialogNote;
+    public TextView tvDialogName;
+    public TextView tvDialogCount;
+    public OrderEntry newOrderEntry;
+    public int bufCount;
 
     NetworkService networkService;
     Boolean isServiceConnected;
@@ -100,7 +118,9 @@ public class MenuActivity  extends AppCompatActivity {
 
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
         menuNameListView.setOnItemClickListener(new ListMenuClickListener());
+        menuNameListView.setOnItemLongClickListener(new ListMenuLongClickListener());
 
+        initEditDialog(this);
     }
 
     @Override
@@ -130,6 +150,78 @@ public class MenuActivity  extends AppCompatActivity {
         updateMenuEntriesAdapter(MenuActivity.this);
 
         drawerLayout.closeDrawers();
+    }
+
+    private void initEditDialog(Context context){
+
+        editDialog = new Dialog(context);
+        editDialog.setTitle("Изменить заказ");
+        editDialog.setContentView(R.layout.activity_order_dialog);
+
+        btnDialogOk = (Button) editDialog.findViewById(R.id.ov_dialog_btn_ok);
+        btnDialogInc = (Button) editDialog.findViewById(R.id.ov_dialog_btn_plus);
+        btnDialogDec = (Button) editDialog.findViewById(R.id.ov_dialog_btn_minus);
+        editDialogNote = (EditText) editDialog.findViewById(R.id.ov_dialog_edit_note);
+        tvDialogName = (TextView) editDialog.findViewById(R.id.ov_dialog_tv_name);
+        tvDialogCount = (TextView) editDialog.findViewById(R.id.ov_dialog_tv_count);
+
+        btnDialogCancel = (Button) editDialog.findViewById(R.id.ov_dialog_btn_cancel);
+        btnDialogCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editDialog.dismiss();
+            }
+        });
+
+        btnDialogInc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bufCount < 1000) {
+                    bufCount++;
+                    tvDialogCount.setText("Количество: " + bufCount);
+                }else {
+                    Toast.makeText(MenuActivity.this, "Ебанулся?", Toast.LENGTH_LONG);
+                }
+            }
+        });
+
+        btnDialogDec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bufCount > 1) {
+                    bufCount--;
+                    tvDialogCount.setText("Количество: " + bufCount);
+                }
+            }
+        });
+
+        btnDialogOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newOrderEntry.count = bufCount;
+                newOrderEntry.note = editDialogNote.getText().toString();
+                orderToDatabase(newOrderEntry);
+                editDialog.dismiss();
+            }
+        });
+
+    }
+
+    private void showEditDialog(int position){
+        bufCount = 1;
+        MenuEntry menuEntry = mMenuEntriesByCategory.get(position);
+        newOrderEntry = new OrderEntry(menuEntry.id, menuEntry.name, bufCount, 0, "");
+        tvDialogName.setText(newOrderEntry.name);
+        tvDialogCount.setText("Количество: " + bufCount);
+        editDialog.show();
+    }
+
+    private class ListMenuLongClickListener implements ListView.OnItemLongClickListener{
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            showEditDialog(position);
+            return true;
+        }
     }
 
     private class ListMenuClickListener implements ListView.OnItemClickListener{
@@ -277,7 +369,10 @@ public class MenuActivity  extends AppCompatActivity {
     private void addOrder(int position){
         MenuEntry menuEntry = mMenuEntriesByCategory.get(position);
         OrderEntry orderEntry = new OrderEntry(menuEntry.id, menuEntry.name, 1, 0, "");
+        orderToDatabase(orderEntry);
+    }
 
+    private void orderToDatabase(OrderEntry orderEntry){
         DatabaseHelper databaseHelper = new DatabaseHelper(MenuActivity.this);
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         try {
