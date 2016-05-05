@@ -57,6 +57,7 @@ public class OrderListAdapter extends BaseAdapter {
 
         OrderEntry order = getOrderEntry(position);
 
+        //TODO: летит исключение NullPointer. При переходе в Debug спасает.
         ((TextView) view.findViewById(R.id.tv_order_name)).setText(
                 "" + order.name);
         ((TextView) view.findViewById(R.id.tv_order_count)).setText(

@@ -7,10 +7,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.DrawableRes;
+import android.support.v4.app.NavUtils;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,8 +27,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -125,7 +128,8 @@ public class MenuActivity  extends AppCompatActivity {
         menuNameListView.setOnItemClickListener(new ListMenuClickListener());
         menuNameListView.setOnItemLongClickListener(new ListMenuLongClickListener());
 
-        initEditDialog(this);
+        initToolbar();
+        initEditDialog();
     }
 
     @Override
@@ -140,6 +144,13 @@ public class MenuActivity  extends AppCompatActivity {
         super.onSaveInstanceState(outState);
 
         outState.putString("selectedCategory", mSelectedCategory);
+    }
+
+    private void initToolbar(){
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_action_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -157,9 +168,9 @@ public class MenuActivity  extends AppCompatActivity {
         drawerLayout.closeDrawers();
     }
 
-    private void initEditDialog(Context context){
+    private void initEditDialog(){
 
-        editDialog = new Dialog(context);
+        editDialog = new Dialog(this);
         editDialog.setTitle("Изменить заказ");
         editDialog.setContentView(R.layout.activity_order_dialog);
 
@@ -261,14 +272,12 @@ public class MenuActivity  extends AppCompatActivity {
 
         @Override
         public void onConnecting() {
-            drawerLayout.setVisibility(View.GONE);
-            progressLayout.setVisibility(View.VISIBLE);
+            showProgress();
         }
 
         @Override
         public void onReady() {
-            drawerLayout.setVisibility(View.VISIBLE);
-            progressLayout.setVisibility(View.GONE);
+            showMenuLayout();
             initMenu(MenuActivity.this);
         }
 

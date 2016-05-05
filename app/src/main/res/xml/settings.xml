@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+
     <EditTextPreference
+        android:id="@+id/sa_stub"
         android:title="@string/s_pref_ip"
         android:dialogTitle="@string/s_pref_ip"
         android:defaultValue="192.168.0.1"

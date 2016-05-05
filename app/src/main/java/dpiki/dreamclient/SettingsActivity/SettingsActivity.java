@@ -3,14 +3,32 @@ package dpiki.dreamclient.SettingsActivity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.LayoutInflaterCompat;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.R;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    private void initToolbar(){
+        LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
+        Toolbar toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar,root,false);
+        toolbar.setTitle("Настройки");
+        root.addView(toolbar, 0);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
     /*Для работы стрелки back*/
     @Override
@@ -49,6 +67,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             }
         });
+        initToolbar();
     }
 
     @Override
