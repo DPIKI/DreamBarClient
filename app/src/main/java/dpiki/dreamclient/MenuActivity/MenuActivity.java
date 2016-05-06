@@ -5,10 +5,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.DrawableRes;
 import android.support.v4.app.NavUtils;
 import android.support.v4.widget.DrawerLayout;
@@ -21,9 +23,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +40,7 @@ import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
+import dpiki.dreamclient.OrderActivity.OrderActivity;
 import dpiki.dreamclient.OrderActivity.OrderEntry;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
@@ -54,6 +59,8 @@ public class MenuActivity  extends AppCompatActivity {
 
     public RelativeLayout progressLayout;
     public DrawerLayout drawerLayout;
+    public RelativeLayout wrongPasswordLayout;
+    public RelativeLayout disconnectedLayout;
     public ListView drawerListView;
     public ListView menuNameListView;
 
@@ -64,12 +71,14 @@ public class MenuActivity  extends AppCompatActivity {
     public Button btnDialogCancel;
     public EditText editDialogNote;
     public TextView tvDialogName;
+    public TextView tvTitle;
     public TextView tvDialogCount;
     public OrderEntry newOrderEntry;
     public int bufCount;
 
     NetworkService networkService;
     Boolean isServiceConnected;
+    Switch sw;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -109,10 +118,13 @@ public class MenuActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        tvTitle = (TextView) findViewById(R.id.tv_toolbar_title);
         drawerListView = (ListView) findViewById(R.id.lv_left_drawer);
         menuNameListView = (ListView) findViewById(R.id.lv_menu_name);
         progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        wrongPasswordLayout = (RelativeLayout) findViewById(R.id.mv_wrong_password_layout);
+        disconnectedLayout = (RelativeLayout) findViewById(R.id.mv_disconnected_layout);
         isServiceConnected = false;
 
         mIndexSelectedCategory = 0;
@@ -123,6 +135,7 @@ public class MenuActivity  extends AppCompatActivity {
         menuNameListView.setOnItemLongClickListener(new ListMenuLongClickListener());
 
         initToolbar();
+        initSwitch();
         initEditDialog();
     }
 
@@ -140,11 +153,30 @@ public class MenuActivity  extends AppCompatActivity {
         outState.putString("selectedCategory", mSelectedCategory);
     }
 
-    private void initToolbar(){
+    private void initToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_action_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    private void initSwitch() {
+        sw = (Switch) findViewById(R.id.switch_settings);
+        sw.setVisibility(View.VISIBLE);
+        SharedPreferences pref =
+                            PreferenceManager.getDefaultSharedPreferences(this);
+        sw.setChecked(pref.getBoolean(getString(R.string.s_pref_key_running), false));
+
+            sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    SharedPreferences pref =
+                            PreferenceManager.getDefaultSharedPreferences(MenuActivity.this);
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(getString(R.string.s_pref_key_running), isChecked);
+                    editor.apply();
+                }
+            });
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -152,6 +184,14 @@ public class MenuActivity  extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectDrawerItem(position);
         }
+    }
+
+    public void onClickTurnServiceOn(View view) {
+        sw.setChecked(true);
+    }
+
+    public void onClickChangePassword(View view) {
+        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
     }
 
     private void selectDrawerItem(int position) {
@@ -163,7 +203,6 @@ public class MenuActivity  extends AppCompatActivity {
     }
 
     private void initEditDialog(){
-
         editDialog = new Dialog(this);
         editDialog.setTitle("Изменить заказ");
         editDialog.setContentView(R.layout.activity_order_dialog);
@@ -235,10 +274,10 @@ public class MenuActivity  extends AppCompatActivity {
     }
 
     private class ListMenuClickListener implements ListView.OnItemClickListener{
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                addOrder(position);
-            }
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            addOrder(position);
+        }
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -271,23 +310,41 @@ public class MenuActivity  extends AppCompatActivity {
 
         @Override
         public void onWrongPassword() {
-            // TODO : надпись
+            showWrongPassword();
         }
 
         @Override
         public void onDisconnected() {
-
+            showDisconnected();
         }
     };
 
-    private void showProgress(){
-        drawerLayout.setVisibility(View.GONE);
+    private void showProgress() {
         progressLayout.setVisibility(View.VISIBLE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.GONE);
+        drawerLayout.setVisibility(View.GONE);
     }
 
     private void showMenuLayout() {
         progressLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.GONE);
         drawerLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showWrongPassword() {
+        progressLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.VISIBLE);
+        disconnectedLayout.setVisibility(View.GONE);
+        drawerLayout.setVisibility(View.GONE);
+    }
+
+    private void showDisconnected() {
+        progressLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.VISIBLE);
+        drawerLayout.setVisibility(View.GONE);
     }
 
     private ArrayList<MenuEntry> readFullListMenuFromDatabase(Context context){
@@ -337,16 +394,15 @@ public class MenuActivity  extends AppCompatActivity {
 
         if (mSelectedCategory.equals("Все категории")){
             menuEntriesByCategory = fullMenuEntries;
-        }
-        else {
+        } else {
             Iterator<MenuEntry> i = fullMenuEntries.iterator();
-            while (i.hasNext()){
+            while (i.hasNext()) {
                 MenuEntry menuEntry = i.next();
-                if (menuEntry.category.equals(mSelectedCategory)){
+                if (menuEntry.category.equals(mSelectedCategory)) {
                     menuEntriesByCategory.add(menuEntry);
                 }
             }
-            if (menuEntriesByCategory.isEmpty()){
+            if (menuEntriesByCategory.isEmpty()) {
                 menuEntriesByCategory = mFullMenuEntries;
             }
         }
@@ -397,6 +453,7 @@ public class MenuActivity  extends AppCompatActivity {
         mMenuEntriesByCategory = getMenuEntriesByCategory(mFullMenuEntries);
         MenuListAdapter menuAdapter = new MenuListAdapter(context, mMenuEntriesByCategory);
         menuNameListView.setAdapter(menuAdapter);
+        tvTitle.setText(mSelectedCategory);
     }
 
     private void updateCategoriesAdapter(Context context){

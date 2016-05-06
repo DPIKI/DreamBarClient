@@ -323,7 +323,7 @@ public class OrderActivity extends AppCompatActivity {
         sw = (Switch) findViewById(R.id.switch_settings);
         sw.setVisibility(View.VISIBLE);
         SharedPreferences pref =
-                            PreferenceManager.getDefaultSharedPreferences(OrderActivity.this);
+                            PreferenceManager.getDefaultSharedPreferences(this);
         sw.setChecked(pref.getBoolean(getString(R.string.s_pref_key_running), false));
 
             sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
