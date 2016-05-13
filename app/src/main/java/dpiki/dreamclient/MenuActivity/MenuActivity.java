@@ -33,6 +33,7 @@ import java.util.Iterator;
 import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseMenuWorker;
 import dpiki.dreamclient.Database.DatabaseOrderWorker;
+import dpiki.dreamclient.ImageDownloadManager;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
@@ -71,6 +72,8 @@ public class MenuActivity  extends AppCompatActivity {
     public OrderEntry newOrderEntry;
     public int bufCount;
 
+    public ImageDownloadManager imageDownloadManager;
+
     NetworkService networkService;
     Boolean isServiceConnected;
     Switch sw;
@@ -105,6 +108,7 @@ public class MenuActivity  extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         networkService.unsubscribe(listener);
+        imageDownloadManager.resetNetworkService();
         unbindService(connection);
     }
 
@@ -132,6 +136,8 @@ public class MenuActivity  extends AppCompatActivity {
         initToolbar();
         initSwitch();
         initEditDialog();
+
+        imageDownloadManager = new ImageDownloadManager(getMainLooper());
     }
 
     @Override
@@ -281,6 +287,7 @@ public class MenuActivity  extends AppCompatActivity {
             networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
             networkService.subscribe(listener);
+            imageDownloadManager.setNetworkService(networkService);
         }
 
         @Override
