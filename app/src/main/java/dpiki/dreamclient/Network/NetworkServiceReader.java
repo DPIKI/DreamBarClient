@@ -2,6 +2,7 @@ package dpiki.dreamclient.Network;
 
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -34,8 +35,10 @@ public class NetworkServiceReader extends Thread {
         public byte[] appendix;
     }
 
-    private static final String KEY_RESPONSE_CODE = "response_code";
-    private static final String KEY_MENU = "menu";
+    public static final String KEY_RESPONSE_CODE = "response_code";
+    public static final String KEY_MENU = "menu";
+    public static final String KEY_IMAGE = "image";
+    public static final String KEY_IMAGE_ID = "image_id";
 
     private NetworkServiceHandler handler;
     private Socket socket;
@@ -89,6 +92,18 @@ public class NetworkServiceReader extends Thread {
 
                     case NetworkService.RESPONSE_I_AM_HERE:
                         msg.what = NetworkService.MESSAGE_I_AM_HERE;
+                        break;
+
+                    case NetworkService.RESPONSE_IMAGE:
+                        msg.what = NetworkService.MESSAGE_IMAGE_LOADED;
+                        Bundle bundle = new Bundle();
+                        bundle.putByteArray(KEY_IMAGE, receivedData.appendix);
+                        bundle.putInt(KEY_IMAGE_ID, receivedData.root.getInt(KEY_IMAGE_ID));
+                        msg.setData(bundle);
+                        break;
+
+                    case NetworkService.RESPONSE_NO_IMAGE:
+                        msg.what = NetworkService.MESSAGE_NO_IMAGE;
                         break;
 
                     default:

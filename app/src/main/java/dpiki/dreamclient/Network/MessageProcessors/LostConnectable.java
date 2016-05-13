@@ -18,7 +18,7 @@ public abstract class LostConnectable extends Disconnectable {
     }
 
     @Override
-    public void onLostConnection() {
+    public void onLostConnection(Message msg) {
         Log.d("LostConnectable", "onLostConnection");
 
         // Чистим ресурсы
@@ -33,7 +33,7 @@ public abstract class LostConnectable extends Disconnectable {
     }
 
     @Override
-    public void onTick() {
+    public void onTick(Message msg) {
         Log.d("NetworkService", "onTick" + Integer.toString(mHandler.mTimerTicks));
         if (mHandler.mTimerTicks < 5) {
             Bundle bundle = new Bundle();
@@ -52,7 +52,7 @@ public abstract class LostConnectable extends Disconnectable {
     }
 
     @Override
-    public void onIAmHere() {
+    public void onIAmHere(Message msg) {
         Log.d("NetworkService", "I am here" + Integer.toString(mHandler.mTimerTicks));
         mHandler.mTimerTicks = 0;
     }

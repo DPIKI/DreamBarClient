@@ -2,6 +2,7 @@ package dpiki.dreamclient.Network.MessageProcessors;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -25,7 +26,7 @@ public class AuthWaitMessageProcessor extends LostConnectable {
     }
 
     @Override
-    public void onWrongPassword() {
+    public void onWrongPassword(Message msg) {
         Log.d("AWMP", "onWrongPassword");
 
         // Меняем состояние
@@ -34,7 +35,7 @@ public class AuthWaitMessageProcessor extends LostConnectable {
     }
 
     @Override
-    public void onAuthSuccess() {
+    public void onAuthSuccess(Message msg) {
         Log.d("AWMP", "onAuthSuccess");
 
         // Меняем состояние

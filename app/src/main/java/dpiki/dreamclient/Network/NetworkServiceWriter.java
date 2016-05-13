@@ -25,6 +25,7 @@ public class NetworkServiceWriter extends Thread {
     public static final String KEY_NAME = "name";
     public static final String KEY_HASH = "hash";
     public static final String KEY_ORDER = "orders";
+    public static final String KEY_IMAGE_ID = "image_id";
 
     Socket socket;
     Bundle requestData;
@@ -86,7 +87,11 @@ public class NetworkServiceWriter extends Thread {
                     }
 
                     requestJSONData.put(KEY_ORDER, strOrder.toString());
+                    break;
 
+                case NetworkService.ACT_GET_IMAGE:
+                    int id = requestData.getInt(KEY_IMAGE_ID);
+                    requestJSONData.put(KEY_IMAGE_ID, id);
                     break;
             }
 

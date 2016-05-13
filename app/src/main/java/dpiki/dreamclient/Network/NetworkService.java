@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -39,6 +40,9 @@ public class NetworkService extends Service {
     public static final int MESSAGE_ORDER_MADE = 10;
     public static final int MESSAGE_TICK = 11;
     public static final int MESSAGE_I_AM_HERE = 12;
+    public static final int MESSAGE_IMAGE_LOADED = 13;
+    public static final int MESSAGE_SEND_LOAD_IMAGE_REQUEST = 14;
+    public static final int MESSAGE_NO_IMAGE = 15;
 
     // Состояния
     public static final int STATE_DISCONNECTED = 0;
@@ -56,6 +60,7 @@ public class NetworkService extends Service {
     public static final int ACT_MENU = 3;
     public static final int ACT_MAKE_ORDER = 4;
     public static final int ACT_CHECK_CONNECTION = 5;
+    public static final int ACT_GET_IMAGE = 5;
 
     // Коды ответов
     public static final int RESPONSE_AUTH_SUCCESS = 1;
@@ -69,6 +74,8 @@ public class NetworkService extends Service {
     public static final int RESPONSE_ERROR_ACCESS_DENIED_AUTH = 9;
     public static final int RESPONSE_ERROR_ACCESS_DENIED_SYNC = 10;
     public static final int RESPONSE_I_AM_HERE = 11;
+    public static final int RESPONSE_IMAGE = 12;
+    public static final int RESPONSE_NO_IMAGE = 13;
 
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
@@ -98,25 +105,33 @@ public class NetworkService extends Service {
             @Override
             public void handleMessage(Message msg) {
                 for (INetworkServiceListener i : subscribers) {
-                    switch (msg.arg2) {
-                        case NetworkService.STATE_CONNECTING:
-                            i.onConnecting();
-                            break;
+                    if (msg.what == NetworkService.MESSAGE_IMAGE_LOADED) {
+                        Bundle data = msg.getData();
+                        byte[] image = data.getByteArray(NetworkServiceReader.KEY_IMAGE);
+                        int id = data.getInt(NetworkServiceReader.KEY_IMAGE_ID);
+                        i.onImageLoaded(id, image);
+                    } else {
+                        switch (msg.arg2) {
+                            case NetworkService.STATE_CONNECTING:
+                                i.onConnecting();
+                                break;
 
-                        case NetworkService.STATE_AUTH_WRONG_PASSWORD:
-                            i.onWrongPassword();
-                            break;
+                            case NetworkService.STATE_AUTH_WRONG_PASSWORD:
+                                i.onWrongPassword();
+                                break;
 
-                        case NetworkService.STATE_DISCONNECTED:
-                            i.onDisconnected();
-                            break;
+                            case NetworkService.STATE_DISCONNECTED:
+                                i.onDisconnected();
+                                break;
 
-                        case NetworkService.STATE_READY:
-                            if (msg.what == NetworkService.MESSAGE_SYNC_SUCCESS) {
-                                i.onReady();
-                            } if (msg.what == NetworkService.MESSAGE_ORDER_MADE) {
-                                i.onOrderMade();
-                            }
+                            case NetworkService.STATE_READY:
+                                if (msg.what == NetworkService.MESSAGE_SYNC_SUCCESS) {
+                                    i.onReady();
+                                }
+                                if (msg.what == NetworkService.MESSAGE_ORDER_MADE) {
+                                    i.onOrderMade();
+                                }
+                        }
                     }
                 }
             }

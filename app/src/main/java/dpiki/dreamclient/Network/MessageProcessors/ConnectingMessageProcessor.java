@@ -1,6 +1,7 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class ConnectingMessageProcessor extends Disconnectable {
     }
 
     @Override
-    public void onConnect() {
+    public void onConnect(Message msg) {
         Log.d("CMP", "onConnect");
 
         try {

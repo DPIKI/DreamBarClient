@@ -1,5 +1,6 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
+import android.os.Message;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -15,7 +16,7 @@ public abstract class Disconnectable extends BaseMessageProcessor {
     }
 
     @Override
-    public void onDisconnect() {
+    public void onDisconnect(Message msg) {
         Log.d("Disconnectable", "onDisconnect");
 
         // Очищаем ресурсы

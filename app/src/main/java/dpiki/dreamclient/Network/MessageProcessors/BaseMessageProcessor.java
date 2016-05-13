@@ -15,18 +15,20 @@ public abstract class BaseMessageProcessor implements IMessageProcessor {
         mHandler = handler;
     }
 
-    @Override public void onDisconnect() {}
-    @Override public void onLostConnection() {}
-    @Override public void onConnect() {}
-    @Override public void onAuthSuccess() {}
-    @Override public void onWrongPassword() {}
-    @Override public void onSyncSuccess() {}
-    @Override public void onInvalidHash() {}
-    @Override public void onMenuGot() {}
-    @Override public void onSendOrder() {}
-    @Override public void onOrderMade() {}
-    @Override public void onTick() {}
-    @Override public void onIAmHere() {}
+    @Override public void onDisconnect(Message msg) {}
+    @Override public void onLostConnection(Message msg) {}
+    @Override public void onConnect(Message msg) {}
+    @Override public void onAuthSuccess(Message msg) {}
+    @Override public void onWrongPassword(Message msg) {}
+    @Override public void onSyncSuccess(Message msg) {}
+    @Override public void onInvalidHash(Message msg) {}
+    @Override public void onMenuGot(Message msg) {}
+    @Override public void onSendOrder(Message msg) {}
+    @Override public void onOrderMade(Message msg) {}
+    @Override public void onTick(Message msg) {}
+    @Override public void onIAmHere(Message msg) {}
+    @Override public void onImageLoaded(Message msg) {}
+    @Override public void onSendLoadImageRequest(Message msg) {}
 
     protected void sendMessageToHandler(int message) {
         Message msg = mHandler.obtainMessage();
