@@ -7,14 +7,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.DrawableRes;
-import android.support.v4.app.NavUtils;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -40,7 +36,6 @@ import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
-import dpiki.dreamclient.OrderActivity.OrderActivity;
 import dpiki.dreamclient.OrderActivity.OrderEntry;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
@@ -186,20 +181,20 @@ public class MenuActivity  extends AppCompatActivity {
         }
     }
 
-    public void onClickTurnServiceOn(View view) {
-        sw.setChecked(true);
-    }
-
-    public void onClickChangePassword(View view) {
-        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-    }
-
     private void selectDrawerItem(int position) {
         mIndexSelectedCategory = position;
         mSelectedCategory = mCategories.get(mIndexSelectedCategory);
         updateMenuEntriesAdapter(MenuActivity.this);
 
         drawerLayout.closeDrawers();
+    }
+
+    public void onClickTurnServiceOn(View view) {
+        sw.setChecked(true);
+    }
+
+    public void onClickChangePassword(View view) {
+        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
     }
 
     private void initEditDialog(){
@@ -453,7 +448,7 @@ public class MenuActivity  extends AppCompatActivity {
         mMenuEntriesByCategory = getMenuEntriesByCategory(mFullMenuEntries);
         MenuListAdapter menuAdapter = new MenuListAdapter(context, mMenuEntriesByCategory);
         menuNameListView.setAdapter(menuAdapter);
-        tvTitle.setText(mSelectedCategory);
+        updateSelectedCategory();
     }
 
     private void updateCategoriesAdapter(Context context){
@@ -461,5 +456,20 @@ public class MenuActivity  extends AppCompatActivity {
         ArrayAdapter<String> categoriesAdapter = new ArrayAdapter<>(context,
                 R.layout.activity_menu_drawer_list_item, mCategories);
         drawerListView.setAdapter(categoriesAdapter);
+        updateSelectedCategory();
+    }
+
+    public void updateSelectedCategory(){
+        //На случай если категория которая была активна была удалена из меню
+        String selectedCategory = "Все категории";
+        Iterator<String> i = getCategories(mFullMenuEntries).iterator();
+        while (i.hasNext() && selectedCategory.equals("Все категории")){
+            String category = i.next();
+            if (category.equals(mSelectedCategory)){
+                selectedCategory = mSelectedCategory;
+            }
+        }
+        mSelectedCategory = selectedCategory;
+        tvTitle.setText(mSelectedCategory);
     }
 }

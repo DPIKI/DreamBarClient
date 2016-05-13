@@ -42,6 +42,9 @@ public class DatabaseOrderWorker {
             " WHERE " + ORDER_TABLE + "." + ORDER_COLUMN_ID + " == " +
             DatabaseMenuWorker.MENU_TABLE + "." + DatabaseMenuWorker.MENU_COLUMN_ID + ";";
 
+    public static final String QUERY_DELETE_ORDER =
+            "DELETE FROM " + ORDER_TABLE + " WHERE rowid == ";
+
 
     public static ArrayList<OrderEntry> readOrder(SQLiteDatabase db){
         ArrayList<OrderEntry> orderEntries = new ArrayList<>();
@@ -99,6 +102,10 @@ public class DatabaseOrderWorker {
         ContentValues values = new ContentValues();
         values.put(ORDER_COLUMN_NUM_TABLE, tableNum);
         db.update(ORDER_TABLE, values, "", null);
+    }
+
+    public static void deleteOrder(SQLiteDatabase db, int rowId) {
+        db.execSQL(QUERY_DELETE_ORDER + Integer.toString(rowId) + ";");
     }
 
     public static void clearOrder(SQLiteDatabase db) {

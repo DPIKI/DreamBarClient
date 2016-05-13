@@ -3,6 +3,7 @@ package dpiki.dreamclient.Network;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -155,6 +156,9 @@ public class NetworkService extends Service {
     }
 
     // ---------------------------- Interface to application ----------------------------
+    public static Bitmap downloadImage(int id){
+        return null;
+    }
 
     public int state() {
         return handler.state();

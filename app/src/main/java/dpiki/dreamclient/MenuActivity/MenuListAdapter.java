@@ -1,11 +1,15 @@
 package dpiki.dreamclient.MenuActivity;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -18,12 +22,14 @@ public class MenuListAdapter extends BaseAdapter{
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private ArrayList<MenuEntry> mMenuEntries;
+    private Picasso.Builder picassoBuilder;
 
     MenuListAdapter(Context context, ArrayList<MenuEntry> menuEntries){
         mContext = context;
         mMenuEntries = menuEntries;
         mLayoutInflater = (LayoutInflater) context.getSystemService(
                 mContext.LAYOUT_INFLATER_SERVICE);
+        picassoBuilder = new Picasso.Builder(mContext);
     }
 
     @Override
@@ -52,9 +58,15 @@ public class MenuListAdapter extends BaseAdapter{
 
         MenuEntry menuEntry = getMenuEntry(position);
 
-        ((TextView) view.findViewById(R.id.tv_menu_item_name)).setText(
-                "" + menuEntry.name);
-        //TODO: добавить картинку
+        ((TextView) view.findViewById(R.id.tv_menu_item_name)).setText(menuEntry.name);
+
+        ImageView imageView = (ImageView) view.findViewById(R.id.iv_menu_item_image);
+        Picasso.with(mContext).load("http://www.baltech.ru/data1/images/,_baltech_tr01700,_.jpg")
+                .into(imageView);
+       // picassoBuilder.addRequestHandler(new CustomRequestHandler());
+        //Picasso picasso = picassoBuilder.build();
+        //picasso.load(CustomRequestHandler.SCHEME + "://" + menuEntry.id)
+         //       .into(imageView);
 
         return view;
     }

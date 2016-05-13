@@ -3,6 +3,8 @@ package dpiki.dreamclient;
 import android.app.Application;
 import android.content.Intent;
 
+import com.squareup.picasso.Picasso;
+
 import dpiki.dreamclient.Network.NetworkService;
 
 /**

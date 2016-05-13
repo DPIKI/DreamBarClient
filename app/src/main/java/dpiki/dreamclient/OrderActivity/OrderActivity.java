@@ -37,12 +37,14 @@ import dpiki.dreamclient.Network.INetworkServiceListener;
 import dpiki.dreamclient.Network.NetworkService;
 import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
+import dpiki.dreamclient.Swipe.SwipeDismissListViewTouchListener;
 
 public class OrderActivity extends AppCompatActivity {
 
     NetworkService networkService;
     Boolean isServiceConnected;
     ArrayList<OrderEntry> orderEntries = new ArrayList<>();
+    OrderListAdapter orderListAdapter;
 
     ListView listView;
     TextView textView;
@@ -181,7 +183,7 @@ public class OrderActivity extends AppCompatActivity {
             database.close();
         }
 
-        OrderListAdapter orderListAdapter = new OrderListAdapter(OrderActivity.this, orderEntries);
+        orderListAdapter = new OrderListAdapter(OrderActivity.this, orderEntries);
         listView.setAdapter(orderListAdapter);
     }
 
@@ -345,6 +347,43 @@ public class OrderActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    void initSwipeListView() {
+        SwipeDismissListViewTouchListener touchListener =
+                new SwipeDismissListViewTouchListener(
+                        listView,
+                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                            @Override
+                            public boolean canDismiss(int position) {
+                                if(position == 0) {
+                                    return false;
+                                }
+                                else {
+                                    return true;
+                                }
+                            }
+
+                            @Override
+                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                    DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
+                                    SQLiteDatabase db = helper.getWritableDatabase();
+                                    try {
+                                        DatabaseOrderWorker.deleteOrder(db,
+                                                ((OrderEntry)orderListAdapter
+                                                        .getItem(position - 1)).rowId);
+                                        orderEntries = DatabaseOrderWorker.readOrder(db);
+                                    } finally {
+                                        db.close();
+                                    }
+                                }
+                                orderListAdapter.orderEntries = orderEntries;
+                                orderListAdapter.notifyDataSetChanged();
+                            }
+                        });
+        listView.setOnTouchListener(touchListener);
+        listView.setOnScrollListener(touchListener.makeScrollListener());
+    }
+
     void initListView() {
         final View headerView = getLayoutInflater().inflate(
                 R.layout.activity_order_header, null);
@@ -364,7 +403,7 @@ public class OrderActivity extends AppCompatActivity {
                 }
             }
         });
-
+        initSwipeListView();
     }
 
     private ServiceConnection connection = new ServiceConnection() {
