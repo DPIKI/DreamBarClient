@@ -171,9 +171,6 @@ public class NetworkService extends Service {
     }
 
     // ---------------------------- Interface to application ----------------------------
-    public static Bitmap downloadImage(int id){
-        return null;
-    }
 
     public int state() {
         return handler.state();
@@ -219,6 +216,13 @@ public class NetworkService extends Service {
 
     public void unsubscribe(INetworkServiceListener listener) {
         subscribers.remove(listener);
+    }
+
+    public void downloadImage(int id) {
+        Message msg = handler.obtainMessage();
+        msg.what = MESSAGE_SEND_LOAD_IMAGE_REQUEST;
+        msg.arg1 = id;
+        handler.sendMessage(msg);
     }
 
     // -------------- Support -------------------

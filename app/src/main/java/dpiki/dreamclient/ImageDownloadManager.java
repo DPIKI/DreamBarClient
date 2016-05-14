@@ -28,10 +28,12 @@ public class ImageDownloadManager extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        if (mNetworkService != null)
+        if (mNetworkService != null) {
             waiters.put(msg.what, msg);
-        else
+            mNetworkService.downloadImage(msg.what);
+        } else {
             msg.notify();
+        }
     }
 
     // -------- synchronous API -----------

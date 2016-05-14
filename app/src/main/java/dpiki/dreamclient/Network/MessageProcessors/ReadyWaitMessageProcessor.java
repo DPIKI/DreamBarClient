@@ -8,7 +8,7 @@ import dpiki.dreamclient.Network.NetworkServiceHandler;
 /**
  * Created by User on 30.03.2016.
  */
-public class ReadyWaitMessageProcessor extends LostConnectable {
+public class ReadyWaitMessageProcessor extends ImageLoadable {
 
     public ReadyWaitMessageProcessor(NetworkServiceHandler handler) {
         super(handler);

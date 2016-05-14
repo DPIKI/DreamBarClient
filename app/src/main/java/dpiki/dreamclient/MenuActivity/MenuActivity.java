@@ -319,6 +319,11 @@ public class MenuActivity  extends AppCompatActivity {
         public void onDisconnected() {
             showDisconnected();
         }
+
+        @Override
+        public void onImageLoaded(int id, byte[] image) {
+            imageDownloadManager.publishImage(id, image);
+        }
     };
 
     private void showProgress() {

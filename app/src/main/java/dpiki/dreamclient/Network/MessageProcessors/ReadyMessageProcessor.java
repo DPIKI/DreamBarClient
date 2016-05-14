@@ -11,7 +11,7 @@ import dpiki.dreamclient.Network.NetworkServiceWriter;
 /**
  * Created by User on 30.03.2016.
  */
-public class ReadyMessageProcessor extends LostConnectable{
+public class ReadyMessageProcessor extends ImageLoadable {
 
     public ReadyMessageProcessor(NetworkServiceHandler handler) {
         super(handler);
