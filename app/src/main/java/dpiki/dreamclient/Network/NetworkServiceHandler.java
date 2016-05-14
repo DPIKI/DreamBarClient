@@ -1,14 +1,13 @@
 package dpiki.dreamclient.Network;
 
 import android.content.Context;
-import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Timer;
 
 import dpiki.dreamclient.Network.MessageProcessors.DisconnectedMessageProcessor;
 import dpiki.dreamclient.Network.MessageProcessors.IMessageProcessor;
@@ -47,51 +46,59 @@ public class NetworkServiceHandler extends Handler {
     public void handleMessage(Message message) {
         switch (message.what) {
             case NetworkService.MESSAGE_CONNECT:
-                processor.onConnect();
+                processor.onConnect(message);
                 break;
 
             case NetworkService.MESSAGE_DISCONNECT:
-                processor.onDisconnect();
+                processor.onDisconnect(message);
                 break;
 
             case NetworkService.MESSAGE_AUTH_SUCCESS:
-                processor.onAuthSuccess();
+                processor.onAuthSuccess(message);
                 break;
 
             case NetworkService.MESSAGE_WRONG_PASSWORD:
-                processor.onWrongPassword();
+                processor.onWrongPassword(message);
                 break;
 
             case NetworkService.MESSAGE_SYNC_SUCCESS:
-                processor.onSyncSuccess();
+                processor.onSyncSuccess(message);
                 break;
 
             case NetworkService.MESSAGE_INVALID_HASH:
-                processor.onInvalidHash();
+                processor.onInvalidHash(message);
                 break;
 
             case NetworkService.MESSAGE_MENU_GOT:
-                processor.onMenuGot();
+                processor.onMenuGot(message);
                 break;
 
             case NetworkService.MESSAGE_LOST_CONNECTION:
-                processor.onLostConnection();
+                processor.onLostConnection(message);
                 break;
 
             case NetworkService.MESSAGE_SEND_ORDER:
-                processor.onSendOrder();
+                processor.onSendOrder(message);
                 break;
 
             case NetworkService.MESSAGE_ORDER_MADE:
-                processor.onOrderMade();
+                processor.onOrderMade(message);
                 break;
 
             case NetworkService.MESSAGE_TICK:
-                processor.onTick();
+                processor.onTick(message);
                 break;
 
             case NetworkService.MESSAGE_I_AM_HERE:
-                processor.onIAmHere();
+                processor.onIAmHere(message);
+                break;
+
+            case NetworkService.MESSAGE_IMAGE_LOADED:
+                processor.onImageLoaded(message);
+                break;
+
+            case NetworkService.MESSAGE_SEND_LOAD_IMAGE_REQUEST:
+                processor.onSendLoadImageRequest(message);
                 break;
 
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:
@@ -119,12 +126,23 @@ public class NetworkServiceHandler extends Handler {
         }
     }
 
+    /* msg.what - причина перехода
+     * msg.arg1 - предыдущее состояние
+     * msg.arg2 - следующее состояние
+     */
     public void changeState(IMessageProcessor p, int reason) {
         Message msg = mUiHandler.obtainMessage();
         msg.what = reason;
         msg.arg1 = processor.state();
         msg.arg2 = p.state();
         processor = p;
+        mUiHandler.sendMessage(msg);
+    }
+
+    public void sendImageToUi(Bundle bundle) {
+        Message msg = mUiHandler.obtainMessage();
+        msg.what = NetworkService.MESSAGE_IMAGE_LOADED;
+        msg.setData(bundle);
         mUiHandler.sendMessage(msg);
     }
 

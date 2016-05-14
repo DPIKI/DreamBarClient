@@ -1,5 +1,6 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
+import android.os.Message;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -20,7 +21,7 @@ public class DisconnectedMessageProcessor extends BaseMessageProcessor {
     }
 
     @Override
-    public void onConnect() {
+    public void onConnect(Message msg) {
         Log.d("DMP", "onConnect");
 
         if (mHandler.settings.isServiceRunning) {

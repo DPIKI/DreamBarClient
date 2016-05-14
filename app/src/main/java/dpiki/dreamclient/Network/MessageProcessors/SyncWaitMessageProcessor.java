@@ -1,6 +1,7 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -22,7 +23,7 @@ public class SyncWaitMessageProcessor extends LostConnectable {
     }
 
     @Override
-    public void onSyncSuccess() {
+    public void onSyncSuccess(Message msg) {
         // Меняем состояние
         mHandler.changeState(new ReadyMessageProcessor(mHandler),
                 NetworkService.MESSAGE_SYNC_SUCCESS);
@@ -31,7 +32,7 @@ public class SyncWaitMessageProcessor extends LostConnectable {
     }
 
     @Override
-    public void onInvalidHash() {
+    public void onInvalidHash(Message msg) {
         // Меняем состояние
         mHandler.changeState(new MenuWaitMessageProcessor(mHandler),
                 NetworkService.MESSAGE_INVALID_HASH);

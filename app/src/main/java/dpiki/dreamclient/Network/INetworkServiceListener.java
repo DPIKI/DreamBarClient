@@ -9,4 +9,5 @@ public interface INetworkServiceListener {
     void onWrongPassword();
     void onReady();
     void onOrderMade();
+    void onImageLoaded(int id, byte[] image);
 }

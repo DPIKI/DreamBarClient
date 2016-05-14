@@ -2,8 +2,8 @@ package dpiki.dreamclient.Network.MessageProcessors;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -26,7 +26,7 @@ public class MenuWaitMessageProcessor extends LostConnectable {
     }
 
     @Override
-    public void onMenuGot() {
+    public void onMenuGot(Message msg) {
 
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mHandler.context);

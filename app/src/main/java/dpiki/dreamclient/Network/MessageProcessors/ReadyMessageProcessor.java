@@ -1,6 +1,7 @@
 package dpiki.dreamclient.Network.MessageProcessors;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 
 import dpiki.dreamclient.Network.NetworkService;
@@ -10,7 +11,7 @@ import dpiki.dreamclient.Network.NetworkServiceWriter;
 /**
  * Created by User on 30.03.2016.
  */
-public class ReadyMessageProcessor extends LostConnectable{
+public class ReadyMessageProcessor extends ImageLoadable {
 
     public ReadyMessageProcessor(NetworkServiceHandler handler) {
         super(handler);
@@ -22,7 +23,7 @@ public class ReadyMessageProcessor extends LostConnectable{
     }
 
     @Override
-    public void onSendOrder() {
+    public void onSendOrder(Message msg) {
         // Меняем состояние
         mHandler.changeState(new ReadyWaitMessageProcessor(mHandler),
                 NetworkService.MESSAGE_SEND_ORDER);
