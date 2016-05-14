@@ -60,7 +60,7 @@ public class NetworkService extends Service {
     public static final int ACT_MENU = 3;
     public static final int ACT_MAKE_ORDER = 4;
     public static final int ACT_CHECK_CONNECTION = 5;
-    public static final int ACT_GET_IMAGE = 5;
+    public static final int ACT_GET_IMAGE = 6;
 
     // Коды ответов
     public static final int RESPONSE_AUTH_SUCCESS = 1;

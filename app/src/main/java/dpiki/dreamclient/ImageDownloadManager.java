@@ -32,7 +32,9 @@ public class ImageDownloadManager extends Handler {
             waiters.put(msg.what, msg);
             mNetworkService.downloadImage(msg.what);
         } else {
-            msg.notify();
+            synchronized (msg) {
+                msg.notify();
+            }
         }
     }
 
@@ -44,7 +46,9 @@ public class ImageDownloadManager extends Handler {
 
     public void resetNetworkService() {
         for (Message msg : waiters.values()) {
-            msg.notify();
+            synchronized (msg) {
+                msg.notify();
+            }
         }
 
         waiters.clear();
@@ -57,8 +61,10 @@ public class ImageDownloadManager extends Handler {
             Bundle bundle = new Bundle();
             bundle.putByteArray(NetworkServiceReader.KEY_IMAGE, image);
             for (Message msg : waiters.get(id)) {
-                msg.setData(bundle);
-                msg.notify();
+                synchronized (msg) {
+                    msg.setData(bundle);
+                    msg.notify();
+                }
             }
             waiters.removeAll(id);
         }
@@ -70,12 +76,13 @@ public class ImageDownloadManager extends Handler {
         Message msg = obtainMessage();
         msg.what = id;
         sendMessage(msg);
-        try {
-            msg.wait();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
+        synchronized (msg) {
+            try {
+                msg.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         Bundle bundle = msg.getData();

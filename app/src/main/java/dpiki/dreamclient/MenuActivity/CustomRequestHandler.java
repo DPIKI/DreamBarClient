@@ -26,7 +26,8 @@ public class CustomRequestHandler extends RequestHandler{
 
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
-        int key = Integer.getInteger(request.uri.getHost());
+        String host = request.uri.getHost();
+        int key = Integer.parseInt(host);
         Bitmap bitmap = mImageDownloadManager.getImage(key);
         return new Result(bitmap, Picasso.LoadedFrom.NETWORK);
     }

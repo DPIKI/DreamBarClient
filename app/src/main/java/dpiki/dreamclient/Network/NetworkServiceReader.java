@@ -95,15 +95,12 @@ public class NetworkServiceReader extends Thread {
                         break;
 
                     case NetworkService.RESPONSE_IMAGE:
+                    case NetworkService.RESPONSE_NO_IMAGE:
                         msg.what = NetworkService.MESSAGE_IMAGE_LOADED;
                         Bundle bundle = new Bundle();
                         bundle.putByteArray(KEY_IMAGE, receivedData.appendix);
                         bundle.putInt(KEY_IMAGE_ID, receivedData.root.getInt(KEY_IMAGE_ID));
                         msg.setData(bundle);
-                        break;
-
-                    case NetworkService.RESPONSE_NO_IMAGE:
-                        msg.what = NetworkService.MESSAGE_NO_IMAGE;
                         break;
 
                     default:
@@ -118,6 +115,7 @@ public class NetworkServiceReader extends Thread {
             Message msg = handler.obtainMessage();
             msg.what = NetworkService.MESSAGE_LOST_CONNECTION;
             handler.sendMessage(msg);
+            e.printStackTrace();
         }
         finally {
             is = null;
@@ -165,6 +163,9 @@ public class NetworkServiceReader extends Thread {
                 int appendixSize = msgSize - 4 - jsonSize;
                 receivedData.appendix = new byte[appendixSize];
                 System.arraycopy(data, jsonSize + 4, receivedData.appendix, 0, appendixSize);
+            }
+            else {
+                receivedData.appendix = null;
             }
 
             return receivedData;
