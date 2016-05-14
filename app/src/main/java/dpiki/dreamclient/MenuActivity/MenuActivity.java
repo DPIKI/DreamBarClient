@@ -458,7 +458,8 @@ public class MenuActivity  extends AppCompatActivity {
     private void updateMenuEntriesAdapter(Context context){
         mFullMenuEntries = readFullListMenuFromDatabase(context);
         mMenuEntriesByCategory = getMenuEntriesByCategory(mFullMenuEntries);
-        MenuListAdapter menuAdapter = new MenuListAdapter(context, mMenuEntriesByCategory);
+        MenuListAdapter menuAdapter = new MenuListAdapter(context, mMenuEntriesByCategory,
+                imageDownloadManager);
         menuNameListView.setAdapter(menuAdapter);
         updateSelectedCategory();
     }

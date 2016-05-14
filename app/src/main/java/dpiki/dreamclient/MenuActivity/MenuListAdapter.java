@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import dpiki.dreamclient.ImageDownloadManager;
 import dpiki.dreamclient.R;
 
 /**
@@ -23,13 +24,16 @@ public class MenuListAdapter extends BaseAdapter{
     private LayoutInflater mLayoutInflater;
     private ArrayList<MenuEntry> mMenuEntries;
     private Picasso.Builder picassoBuilder;
+    private ImageDownloadManager downloadManager;
 
-    MenuListAdapter(Context context, ArrayList<MenuEntry> menuEntries){
+    MenuListAdapter(Context context, ArrayList<MenuEntry> menuEntries,
+                    ImageDownloadManager manager){
         mContext = context;
         mMenuEntries = menuEntries;
         mLayoutInflater = (LayoutInflater) context.getSystemService(
                 mContext.LAYOUT_INFLATER_SERVICE);
         picassoBuilder = new Picasso.Builder(mContext);
+        downloadManager = manager;
     }
 
     @Override
@@ -61,13 +65,11 @@ public class MenuListAdapter extends BaseAdapter{
         ((TextView) view.findViewById(R.id.tv_menu_item_name)).setText(menuEntry.name);
 
         ImageView imageView = (ImageView) view.findViewById(R.id.iv_menu_item_image);
-        Picasso.with(mContext).load("http://www.baltech.ru/data1/images/,_baltech_tr01700,_.jpg")
+        picassoBuilder.addRequestHandler(new CustomRequestHandler(downloadManager));
+        Picasso picasso = picassoBuilder.build();
+        picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(menuEntry.id))
+                .error(R.drawable.ic_action_new)
                 .into(imageView);
-       // picassoBuilder.addRequestHandler(new CustomRequestHandler());
-        //Picasso picasso = picassoBuilder.build();
-        //picasso.load(CustomRequestHandler.SCHEME + "://" + menuEntry.id)
-         //       .into(imageView);
-
         return view;
     }
 
