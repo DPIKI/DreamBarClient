@@ -51,26 +51,41 @@ public class MenuListAdapter extends BaseAdapter{
         return position;
     }
 
+    static class ViewHolder {
+        TextView tvItemName;
+        ImageView ivImage;
+        Picasso picasso;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
+        ViewHolder viewHolder;
 
-        if (view == null){
-            view = mLayoutInflater.inflate(R.layout.activity_menu_entry,
+        if (convertView == null){
+            convertView = mLayoutInflater.inflate(R.layout.activity_menu_entry,
                     parent, false);
-        }
+            viewHolder = new ViewHolder();
 
+            viewHolder.tvItemName = (TextView) convertView.findViewById(R.id.tv_menu_item_name);
+
+            viewHolder.ivImage = (ImageView) convertView.findViewById(R.id.iv_menu_item_image);
+
+            picassoBuilder.addRequestHandler(new CustomRequestHandler(downloadManager));
+            viewHolder.picasso = picassoBuilder.build();
+
+            convertView.setTag(viewHolder);
+        }else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
         MenuEntry menuEntry = getMenuEntry(position);
 
-        ((TextView) view.findViewById(R.id.tv_menu_item_name)).setText(menuEntry.name);
+        viewHolder.tvItemName.setText(menuEntry.name);
 
-        ImageView imageView = (ImageView) view.findViewById(R.id.iv_menu_item_image);
-        picassoBuilder.addRequestHandler(new CustomRequestHandler(downloadManager));
-        Picasso picasso = picassoBuilder.build();
-        picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(menuEntry.id))
+        viewHolder.picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(menuEntry.id))
                 .error(R.drawable.ic_action_new)
-                .into(imageView);
-        return view;
+                .into(viewHolder.ivImage);
+
+        return convertView;
     }
 
     MenuEntry getMenuEntry(int position){
