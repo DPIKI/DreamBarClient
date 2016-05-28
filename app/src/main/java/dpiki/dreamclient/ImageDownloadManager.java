@@ -2,25 +2,28 @@ package dpiki.dreamclient;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.ContactsContract;
 
-import com.google.common.collect.HashMultimap;
-
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import dpiki.dreamclient.Network.NetworkService;
-import dpiki.dreamclient.Network.NetworkServiceReader;
 
 /**
  * Created by User on 13.05.2016.
  */
 public class ImageDownloadManager extends Handler {
 
+    class ImageRequest {
+        public int id;
+        public byte[] img;
+    }
+
     private NetworkService mNetworkService;
-    private HashMultimap<Integer, Message> waiters = HashMultimap.create();
+    private final ArrayList<ImageRequest> waiters = new ArrayList<>();
 
     public ImageDownloadManager(Looper looper) {
         super(looper);
@@ -28,71 +31,64 @@ public class ImageDownloadManager extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        if (mNetworkService != null) {
-            waiters.put(msg.what, msg);
-            mNetworkService.downloadImage(msg.what);
-        } else {
-            synchronized (msg) {
-                msg.notify();
-            }
-        }
+        mNetworkService.downloadImage(msg.what);
     }
-
-    // -------- synchronous API -----------
 
     public void setNetworkService(NetworkService service) {
         mNetworkService = service;
     }
 
     public void resetNetworkService() {
-        for (Message msg : waiters.values()) {
-            synchronized (msg) {
-                msg.notify();
+        synchronized (waiters) {
+            for (ImageRequest i : waiters) {
+                synchronized (i) {
+                    i.notify();
+                }
             }
+            waiters.clear();
         }
-
-        waiters.clear();
-
-        mNetworkService = null;
     }
 
     public void publishImage(int id, byte[] image) {
-        if (mNetworkService != null) {
-            Bundle bundle = new Bundle();
-            bundle.putByteArray(NetworkServiceReader.KEY_IMAGE, image);
-            for (Message msg : waiters.get(id)) {
-                synchronized (msg) {
-                    msg.setData(bundle);
-                    msg.notify();
+        synchronized (waiters) {
+            Iterator<ImageRequest> it = waiters.iterator();
+            while (it.hasNext()) {
+                ImageRequest i = it.next();
+                if (i.id == id) {
+                    synchronized (i) {
+                        i.img = image;
+                        i.notify();
+                    }
+                    it.remove();
                 }
             }
-            waiters.removeAll(id);
         }
     }
 
-    // -------- asynchronous API -----------
-
     public Bitmap getImage(int id) {
-        Message msg = obtainMessage();
-        msg.what = id;
-        sendMessage(msg);
-        synchronized (msg) {
-            try {
-                msg.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try {
+            ImageRequest ir = new ImageRequest();
+            ir.id = id;
+            synchronized (waiters) {
+                waiters.add(ir);
+            }
+
+            Message msg = obtainMessage();
+            msg.what = id;
+            sendMessage(msg);
+
+            synchronized (ir) {
+                ir.wait();
+            }
+
+            if (ir.img == null) {
                 return null;
+            } else {
+                return BitmapFactory.decodeByteArray(ir.img, 0, ir.img.length);
             }
         }
-
-        Bundle bundle = msg.getData();
-        if (bundle == null)
+        catch (InterruptedException e) {
             return null;
-
-        byte[] bytesImage = bundle.getByteArray(NetworkServiceReader.KEY_IMAGE);
-        if (bytesImage == null)
-            return null;
-
-        return BitmapFactory.decodeByteArray(bytesImage, 0, bytesImage.length);
+        }
     }
 }
