@@ -301,6 +301,7 @@ public class MenuActivity  extends AppCompatActivity {
 
         @Override
         public void onConnecting() {
+            editDialog.dismiss();
             showProgress();
         }
 
@@ -312,11 +313,13 @@ public class MenuActivity  extends AppCompatActivity {
 
         @Override
         public void onWrongPassword() {
+            editDialog.dismiss();
             showWrongPassword();
         }
 
         @Override
         public void onDisconnected() {
+            editDialog.dismiss();
             showDisconnected();
         }
 
@@ -380,7 +383,7 @@ public class MenuActivity  extends AppCompatActivity {
                 boolean isExist = false;
 
                 Iterator<String> i = categories.iterator();
-                while (i.hasNext() && !isExist){
+                while (i.hasNext() && !isExist) {
 
                     String category = i.next();
                     if (category.equals(menuEntry.category)){
