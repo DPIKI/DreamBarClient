@@ -129,8 +129,7 @@ public class NetworkServiceReader extends Thread {
             byte[] buffer = new byte[4];
 
             // Читаем размер сообщения
-            if (is.read(buffer) == -1)
-                throw new IOException();
+            readByteArray(buffer);
             byteBuffer.clear();
             byteBuffer.put(buffer, 0, 4);
             int msgSize = byteBuffer.getInt(0);
@@ -141,8 +140,7 @@ public class NetworkServiceReader extends Thread {
 
             // Выделяем буфер этого размера и читаем в него данные
             byte[] data = new byte[msgSize];
-            if (is.read(data) == -1)
-                throw new IOException();
+            readByteArray(data);
 
             // Читаем размер данных с json
             byteBuffer.clear();
@@ -223,5 +221,16 @@ public class NetworkServiceReader extends Thread {
         catch (JSONException | NoSuchAlgorithmException e) {
             throw new IOException();
         }
+    }
+
+    void readByteArray(byte[] dst) throws IOException {
+        int readBytes = 0;
+        while (readBytes < dst.length) {
+            int readNow = is.read(dst, readBytes, dst.length - readBytes);
+            if (readNow == -1)
+                throw new IOException();
+            readBytes += readNow;
+        }
+
     }
 }
