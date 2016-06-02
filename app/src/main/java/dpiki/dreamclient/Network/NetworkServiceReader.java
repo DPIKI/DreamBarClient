@@ -126,9 +126,9 @@ public class NetworkServiceReader extends Thread {
         try {
             ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            byte[] buffer = new byte[4];
 
             // Читаем размер сообщения
+            byte[] buffer = new byte[4];
             readByteArray(buffer);
             byteBuffer.clear();
             byteBuffer.put(buffer, 0, 4);

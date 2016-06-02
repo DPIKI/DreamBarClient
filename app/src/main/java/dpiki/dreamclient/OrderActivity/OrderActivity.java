@@ -33,6 +33,7 @@ import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseOrderWorker;
 import dpiki.dreamclient.EditDialog;
 import dpiki.dreamclient.IEditDialogCallback;
+import dpiki.dreamclient.ImageDownloadManager;
 import dpiki.dreamclient.MenuActivity.MenuActivity;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
@@ -65,9 +66,10 @@ public class OrderActivity extends AppCompatActivity
 
     Switch sw;
 
+    ImageDownloadManager imageDownloadManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order);
 
@@ -78,13 +80,13 @@ public class OrderActivity extends AppCompatActivity
         textView = (TextView) findViewById(R.id.ov_pb_text_view);
         listView = (ListView) findViewById(R.id.lv_orders);
         isServiceConnected = false;
-
-        dialog = new EditDialog(this, new Dialog(this), this);
+        imageDownloadManager = new ImageDownloadManager(getMainLooper());
 
         initListView();
         initSelectTableDialog();
         initToolbar();
         initSwitch();
+        dialog = new EditDialog(this, this, imageDownloadManager);
 
         Log.d("OrderActivity", "onCreate");
     }
@@ -104,6 +106,7 @@ public class OrderActivity extends AppCompatActivity
         super.onPause();
 
         networkService.unsubscribe(listener);
+        imageDownloadManager.resetNetworkService();
         unbindService(connection);
 
         Log.d("OrderActivity", "onPause");
@@ -336,6 +339,7 @@ public class OrderActivity extends AppCompatActivity
             networkService = ((NetworkService.NetworkServiceBinder) service).getServiceInstance();
             isServiceConnected = true;
             networkService.subscribe(listener);
+            imageDownloadManager.setNetworkService(networkService);
         }
 
         @Override
@@ -350,7 +354,7 @@ public class OrderActivity extends AppCompatActivity
 
         @Override
         public void onConnecting() {
-            dialog.dismiss();
+            dialog.hideDialog();
             viewProgress("Подключаемся...");
             Log.d("OrderActivity", "onConnecting");
         }
@@ -364,7 +368,7 @@ public class OrderActivity extends AppCompatActivity
 
         @Override
         public void onWrongPassword() {
-            dialog.dismiss();
+            dialog.hideDialog();
             viewWrongPassword();
             Log.d("OrderActivity", "onWrongPassword");
         }
@@ -388,9 +392,14 @@ public class OrderActivity extends AppCompatActivity
 
         @Override
         public void onDisconnected() {
-            dialog.dismiss();
+            dialog.hideDialog();
             viewDisconnected();
             Log.d("OrderActivity", "onDisconnected");
+        }
+
+        @Override
+        public void onImageLoaded(int id, byte[] image) {
+            imageDownloadManager.publishImage(id, image);
         }
     };
 

@@ -1,4 +1,4 @@
-package dpiki.dreamclient.MenuActivity;
+package dpiki.dreamclient;
 
 import android.graphics.Bitmap;
 
@@ -11,11 +11,11 @@ import java.io.IOException;
 import dpiki.dreamclient.ImageDownloadManager;
 import dpiki.dreamclient.Network.NetworkService;
 
-public class CustomRequestHandler extends RequestHandler{
+public class CustomRequestHandler extends RequestHandler {
     public static final String SCHEME = "bar";
     private ImageDownloadManager mImageDownloadManager;
 
-    CustomRequestHandler(ImageDownloadManager imageDownloadManager){
+    public CustomRequestHandler(ImageDownloadManager imageDownloadManager){
         mImageDownloadManager = imageDownloadManager;
     }
 

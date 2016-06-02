@@ -1,7 +1,6 @@
 package dpiki.dreamclient.MenuActivity;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import dpiki.dreamclient.CustomRequestHandler;
 import dpiki.dreamclient.ImageDownloadManager;
 import dpiki.dreamclient.R;
 
@@ -62,25 +62,19 @@ public class MenuListAdapter extends BaseAdapter{
         ViewHolder viewHolder;
 
         if (convertView == null){
-            convertView = mLayoutInflater.inflate(R.layout.activity_menu_entry,
-                    parent, false);
+            convertView = mLayoutInflater.inflate(R.layout.activity_menu_entry, parent, false);
             viewHolder = new ViewHolder();
-
             viewHolder.tvItemName = (TextView) convertView.findViewById(R.id.tv_menu_item_name);
-
             viewHolder.ivImage = (ImageView) convertView.findViewById(R.id.iv_menu_item_image);
-
             picassoBuilder.addRequestHandler(new CustomRequestHandler(downloadManager));
             viewHolder.picasso = picassoBuilder.build();
-
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+
         MenuEntry menuEntry = getMenuEntry(position);
-
         viewHolder.tvItemName.setText(menuEntry.name);
-
         viewHolder.picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(menuEntry.id))
                 .error(R.drawable.ic_action_new)
                 .into(viewHolder.ivImage);

@@ -5,8 +5,11 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import dpiki.dreamclient.OrderActivity.OrderEntry;
 
@@ -21,6 +24,7 @@ public class EditDialog {
 
     TextView tvDialogCount;
     TextView tvDialogName;
+    ImageView ivImage;
     EditText editDialogNotes;
     Button btnDialogInc;
     Button btnDialogDec;
@@ -28,20 +32,29 @@ public class EditDialog {
     Button btnDialogCancel;
     IEditDialogCallback callback;
 
+    ImageDownloadManager downloadManager;
+    Picasso.Builder picassoBuilder;
+    Picasso picasso;
+
     int bufCount;
 
-    public EditDialog(Context ctx, Dialog dlg,
-                      IEditDialogCallback clbck) {
+    public EditDialog(Context ctx, IEditDialogCallback clbck, ImageDownloadManager idm) {
         context = ctx;
-        dialog = dlg;
+        dialog = new Dialog(context);
         currentOrderEntry = null;
+        downloadManager = idm;
         bufCount = 0;
         callback = clbck;
+
+        picassoBuilder = new Picasso.Builder(context);
+        picassoBuilder.addRequestHandler(new CustomRequestHandler(downloadManager));
+        picasso = picassoBuilder.build();
 
         dialog.setTitle("Редактирование заказа");
         dialog.setContentView(R.layout.activity_order_dialog);
         tvDialogCount = (TextView) dialog.findViewById(R.id.ov_dialog_tv_count);
         tvDialogName = (TextView) dialog.findViewById(R.id.ov_dialog_tv_name);
+        ivImage = (ImageView) dialog.findViewById(R.id.ov_dialog_iv_image);
         editDialogNotes = (EditText) dialog.findViewById(R.id.ov_dialog_edit_note);
         btnDialogDec = (Button) dialog.findViewById(R.id.ov_dialog_btn_minus);
         btnDialogInc = (Button) dialog.findViewById(R.id.ov_dialog_btn_plus);
@@ -95,6 +108,9 @@ public class EditDialog {
         tvDialogName.setText(currentOrderEntry.name);
         tvDialogCount.setText("Количество: " + Integer.toString(currentOrderEntry.count));
         editDialogNotes.setText(currentOrderEntry.note);
+        picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(entry.id))
+                .error(R.drawable.ic_action_new)
+                .into(ivImage);
         dialog.show();
     }
 
