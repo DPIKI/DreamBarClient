@@ -350,6 +350,7 @@ public class OrderActivity extends AppCompatActivity
 
         @Override
         public void onConnecting() {
+            dialog.dismiss();
             viewProgress("Подключаемся...");
             Log.d("OrderActivity", "onConnecting");
         }
@@ -363,6 +364,7 @@ public class OrderActivity extends AppCompatActivity
 
         @Override
         public void onWrongPassword() {
+            dialog.dismiss();
             viewWrongPassword();
             Log.d("OrderActivity", "onWrongPassword");
         }
@@ -386,6 +388,7 @@ public class OrderActivity extends AppCompatActivity
 
         @Override
         public void onDisconnected() {
+            dialog.dismiss();
             viewDisconnected();
             Log.d("OrderActivity", "onDisconnected");
         }
