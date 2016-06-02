@@ -31,6 +31,8 @@ import java.util.ArrayList;
 
 import dpiki.dreamclient.Database.DatabaseHelper;
 import dpiki.dreamclient.Database.DatabaseOrderWorker;
+import dpiki.dreamclient.EditDialog;
+import dpiki.dreamclient.IEditDialogCallback;
 import dpiki.dreamclient.MenuActivity.MenuActivity;
 import dpiki.dreamclient.Network.BaseNetworkListener;
 import dpiki.dreamclient.Network.INetworkServiceListener;
@@ -39,7 +41,8 @@ import dpiki.dreamclient.R;
 import dpiki.dreamclient.SettingsActivity.SettingsActivity;
 import dpiki.dreamclient.Swipe.SwipeDismissListViewTouchListener;
 
-public class OrderActivity extends AppCompatActivity {
+public class OrderActivity extends AppCompatActivity
+        implements IEditDialogCallback {
 
     NetworkService networkService;
     Boolean isServiceConnected;
@@ -53,16 +56,7 @@ public class OrderActivity extends AppCompatActivity {
     RelativeLayout wrongPasswordLayout;
     RelativeLayout disconnectedLayout;
 
-    Dialog dialog;
-    TextView tvDialogCount;
-    TextView tvDialogName;
-    EditText editDialogNotes;
-    Button btnDialogInc;
-    Button btnDialogDec;
-    Button btnDialogOk;
-    Button btnDialogCancel;
-    OrderEntry currentOrderEntry;
-    int bufCount;
+    EditDialog dialog;
 
     Dialog selectTableDialog;
     Button btnStDialogOk;
@@ -85,8 +79,9 @@ public class OrderActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.lv_orders);
         isServiceConnected = false;
 
+        dialog = new EditDialog(this, new Dialog(this), this);
+
         initListView();
-        initEditDialog();
         initSelectTableDialog();
         initToolbar();
         initSwitch();
@@ -217,73 +212,6 @@ public class OrderActivity extends AppCompatActivity {
         progressBarLayout.setVisibility(View.GONE);
     }
 
-    void initEditDialog() {
-        dialog = new Dialog(this);
-        dialog.setTitle("Редактирование заказа");
-        dialog.setContentView(R.layout.activity_order_dialog);
-        tvDialogCount = (TextView) dialog.findViewById(R.id.ov_dialog_tv_count);
-        tvDialogName = (TextView) dialog.findViewById(R.id.ov_dialog_tv_name);
-        editDialogNotes = (EditText) dialog.findViewById(R.id.ov_dialog_edit_note);
-        btnDialogDec = (Button) dialog.findViewById(R.id.ov_dialog_btn_minus);
-        btnDialogInc = (Button) dialog.findViewById(R.id.ov_dialog_btn_plus);
-        btnDialogOk = (Button) dialog.findViewById(R.id.ov_dialog_btn_ok);
-        btnDialogCancel = (Button) dialog.findViewById(R.id.ov_dialog_btn_cancel);
-
-        btnDialogInc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (bufCount < 1000) {
-                    bufCount++;
-                    tvDialogCount.setText("Количество: " + Integer.toString(bufCount));
-                } else {
-                    Toast.makeText(OrderActivity.this,
-                            "Ебанулся?", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        btnDialogDec.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (bufCount > 1) {
-                    bufCount--;
-                    tvDialogCount.setText("Количество: " + Integer.toString(bufCount));
-                }
-            }
-        });
-
-        btnDialogOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                currentOrderEntry.count = bufCount;
-                currentOrderEntry.note = editDialogNotes.getText().toString();
-                OrderListAdapter adapter = new OrderListAdapter(OrderActivity.this,
-                        orderEntries);
-                listView.setAdapter(adapter);
-
-                DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
-                SQLiteDatabase db = helper.getWritableDatabase();
-                try {
-                    DatabaseOrderWorker.updateOrderNoteAndCount(db,
-                            currentOrderEntry.rowId,
-                            currentOrderEntry.note,
-                            currentOrderEntry.count);
-                }
-                finally {
-                    db.close();
-                }
-                dialog.dismiss();
-            }
-        });
-
-        btnDialogCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-    }
-
     void initSelectTableDialog() {
         selectTableDialog = new Dialog(this);
         selectTableDialog.setTitle("Выберите стол");
@@ -394,12 +322,7 @@ public class OrderActivity extends AppCompatActivity {
                 if (position == 0) {
                     startActivity(new Intent(OrderActivity.this, MenuActivity.class));
                 } else {
-                    currentOrderEntry = orderEntries.get(position - 1);
-                    bufCount = currentOrderEntry.count;
-                    tvDialogName.setText(currentOrderEntry.name);
-                    tvDialogCount.setText("Количество: " + Integer.toString(currentOrderEntry.count));
-                    editDialogNotes.setText(currentOrderEntry.note);
-                    dialog.show();
+                    dialog.showDialog(orderEntries.get(position - 1));
                 }
             }
         });
@@ -467,4 +390,23 @@ public class OrderActivity extends AppCompatActivity {
             Log.d("OrderActivity", "onDisconnected");
         }
     };
+
+    @Override
+    public void onOkButtonClick(OrderEntry entry) {
+        OrderListAdapter adapter = new OrderListAdapter(OrderActivity.this,
+                        orderEntries);
+        listView.setAdapter(adapter);
+
+        DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        try {
+            DatabaseOrderWorker.updateOrderNoteAndCount(db,
+                entry.rowId,
+                entry.note,
+                entry.count);
+        }
+        finally {
+            db.close();
+        }
+    }
 }
