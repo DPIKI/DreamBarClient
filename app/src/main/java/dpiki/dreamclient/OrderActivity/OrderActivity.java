@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -56,6 +57,7 @@ public class OrderActivity extends AppCompatActivity
     RelativeLayout progressBarLayout;
     RelativeLayout wrongPasswordLayout;
     RelativeLayout disconnectedLayout;
+    RelativeLayout wifiDisabledLayout;
 
     EditDialog dialog;
 
@@ -77,6 +79,7 @@ public class OrderActivity extends AppCompatActivity
         progressBarLayout = (RelativeLayout) findViewById(R.id.ov_pb_layout);
         disconnectedLayout = (RelativeLayout) findViewById(R.id.ov_disconnected_layout);
         wrongPasswordLayout = (RelativeLayout) findViewById(R.id.ov_wrong_password_layout);
+        wifiDisabledLayout = (RelativeLayout) findViewById(R.id.ov_wifi_disabled_layout);
         textView = (TextView) findViewById(R.id.ov_pb_text_view);
         listView = (ListView) findViewById(R.id.lv_orders);
         isServiceConnected = false;
@@ -192,6 +195,7 @@ public class OrderActivity extends AppCompatActivity
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
         progressBarLayout.setVisibility(View.VISIBLE);
+        wifiDisabledLayout.setVisibility(View.GONE);
     }
 
     void viewOrder() {
@@ -199,6 +203,7 @@ public class OrderActivity extends AppCompatActivity
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
         progressBarLayout.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
     }
 
     void viewWrongPassword() {
@@ -206,6 +211,7 @@ public class OrderActivity extends AppCompatActivity
         wrongPasswordLayout.setVisibility(View.VISIBLE);
         disconnectedLayout.setVisibility(View.GONE);
         progressBarLayout.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
     }
 
     void viewDisconnected() {
@@ -213,6 +219,15 @@ public class OrderActivity extends AppCompatActivity
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.VISIBLE);
         progressBarLayout.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
+    }
+
+    void viewWifiDisabled() {
+        orderLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        disconnectedLayout.setVisibility(View.GONE);
+        progressBarLayout.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.VISIBLE);
     }
 
     void initSelectTableDialog() {
@@ -400,6 +415,13 @@ public class OrderActivity extends AppCompatActivity
         @Override
         public void onImageLoaded(int id, byte[] image) {
             imageDownloadManager.publishImage(id, image);
+        }
+
+        @Override
+        public void onWifiDisabled() {
+            dialog.hideDialog();
+            viewWifiDisabled();
+            Log.d("OrderActivity", "onDisconnected");
         }
     };
 

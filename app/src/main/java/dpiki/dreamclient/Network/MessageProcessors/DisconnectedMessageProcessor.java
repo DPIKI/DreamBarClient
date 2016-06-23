@@ -27,10 +27,10 @@ public class DisconnectedMessageProcessor extends BaseMessageProcessor {
         if (mHandler.settings.isServiceRunning) {
 
             // Говорим себе начать коннектиться
-            sendMessageToHandler(NetworkService.MESSAGE_CONNECT);
+            sendMessageToHandler(NetworkService.MESSAGE_WIFI_CHECK);
 
             // Меняем состояние
-            mHandler.changeState(new ConnectingMessageProcessor(mHandler),
+            mHandler.changeState(new CheckWifiMessageProcessor(mHandler),
                     NetworkService.MESSAGE_CONNECT);
         } else {
             Log.d("DMP", "Service is stopped");

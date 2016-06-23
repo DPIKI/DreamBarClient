@@ -24,4 +24,7 @@ public interface IMessageProcessor {
     void onIAmHere(Message msg);
     void onImageLoaded(Message msg);
     void onSendLoadImageRequest(Message msg);
+    void onWifiEnabled(Message msg);
+    void onWifiDisabled(Message msg);
+    void onCheckWifi(Message msg);
 }

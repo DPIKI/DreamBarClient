@@ -16,7 +16,7 @@ import dpiki.dreamclient.Network.NetworkServiceWriter;
 /**
  * Created by User on 30.03.2016.
  */
-public class ConnectingMessageProcessor extends Disconnectable {
+public class ConnectingMessageProcessor extends WifiDisableble {
 
     public ConnectingMessageProcessor(NetworkServiceHandler handler) {
         super(handler);

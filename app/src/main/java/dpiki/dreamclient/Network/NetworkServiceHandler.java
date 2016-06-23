@@ -101,6 +101,18 @@ public class NetworkServiceHandler extends Handler {
                 processor.onSendLoadImageRequest(message);
                 break;
 
+            case NetworkService.MESSAGE_WIFI_CHECK:
+                processor.onCheckWifi(message);
+                break;
+
+            case NetworkService.MESSAGE_WIFI_DISABLED:
+                processor.onWifiDisabled(message);
+                break;
+
+            case NetworkService.MESSAGE_WIFI_ENABLED:
+                processor.onWifiEnabled(message);
+                break;
+
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:
                 clearResources();
                 changeState(new DisconnectedMessageProcessor(this),

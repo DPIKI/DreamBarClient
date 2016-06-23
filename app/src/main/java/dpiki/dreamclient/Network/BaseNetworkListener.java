@@ -10,4 +10,5 @@ public class BaseNetworkListener implements INetworkServiceListener {
     @Override public void onOrderMade() {}
     @Override public void onDisconnected() {}
     @Override public void onImageLoaded(int id, byte[] image) {}
+    @Override public void onWifiDisabled() {}
 }

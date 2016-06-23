@@ -11,7 +11,7 @@ import dpiki.dreamclient.Network.NetworkServiceWriter;
 /**
  * Created by User on 30.03.2016.
  */
-public abstract class LostConnectable extends Disconnectable {
+public abstract class LostConnectable extends WifiDisableble {
 
     public LostConnectable(NetworkServiceHandler handler) {
         super(handler);

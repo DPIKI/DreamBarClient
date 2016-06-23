@@ -3,6 +3,7 @@
     package="dpiki.dreamclient">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".InitApp"
@@ -26,10 +27,15 @@
 
         <activity
             android:name=".SettingsActivity.SettingsActivity"
-            android:parentActivityName=".OrderActivity.OrderActivity"></activity>
+            android:parentActivityName=".OrderActivity.OrderActivity" />
         <activity
             android:name=".MenuActivity.MenuActivity"
-            android:parentActivityName=".OrderActivity.OrderActivity"></activity>
+            android:parentActivityName=".OrderActivity.OrderActivity" />
+
+        <receiver
+            android:name=".Network.WifiStateChangeReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
     </application>
 
 </manifest>

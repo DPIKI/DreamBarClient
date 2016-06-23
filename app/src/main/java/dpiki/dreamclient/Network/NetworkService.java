@@ -2,6 +2,7 @@ package dpiki.dreamclient.Network;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Binder;
@@ -43,6 +44,9 @@ public class NetworkService extends Service {
     public static final int MESSAGE_IMAGE_LOADED = 13;
     public static final int MESSAGE_SEND_LOAD_IMAGE_REQUEST = 14;
     public static final int MESSAGE_NO_IMAGE = 15;
+    public static final int MESSAGE_WIFI_DISABLED = 16;
+    public static final int MESSAGE_WIFI_ENABLED = 17;
+    public static final int MESSAGE_WIFI_CHECK = 18;
 
     // Состояния
     public static final int STATE_DISCONNECTED = 0;
@@ -53,6 +57,8 @@ public class NetworkService extends Service {
     public static final int STATE_MENU_WAIT = 6;
     public static final int STATE_READY = 7;
     public static final int STATE_READY_WAIT = 8;
+    public static final int STATE_WIFI_CHECK = 9;
+    public static final int STATE_WIFI_DISABLED = 10;
 
     // Коды действий
     public static final int ACT_AUTHORIZE = 1;
@@ -81,6 +87,7 @@ public class NetworkService extends Service {
     private NetworkServiceBinder binder;
     private NetworkServiceSettings settings;
     private Handler mUiHandler;
+    private WifiStateChangeReceiver mWifiReceiver;
 
     // Список слушателей
     private HashSet<INetworkServiceListener> subscribers = new HashSet<>();
@@ -120,6 +127,10 @@ public class NetworkService extends Service {
                                 i.onWrongPassword();
                                 break;
 
+                            case NetworkService.STATE_WIFI_DISABLED:
+                                i.onWifiDisabled();
+                                break;
+
                             case NetworkService.STATE_DISCONNECTED:
                                 i.onDisconnected();
                                 break;
@@ -155,6 +166,10 @@ public class NetworkService extends Service {
         handler = new NetworkServiceHandler(thread.getLooper(),
                 getBaseContext(), settings, mUiHandler);
 
+        // Вешаем слушателя на изменение состояния WiFi
+        mWifiReceiver = new WifiStateChangeReceiver(handler);
+        registerReceiver(mWifiReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+
         // Говорим этому потоку создать соединение, если пользователь разрешил
         if (settings.isServiceRunning)
             sendConnectMessage();
@@ -168,6 +183,9 @@ public class NetworkService extends Service {
         // Убираем слушателя изменения SharedPreferences
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.unregisterOnSharedPreferenceChangeListener(listener);
+
+        // Убираем слушателя состояния Wifi
+        unregisterReceiver(mWifiReceiver);
     }
 
     // ---------------------------- Interface to application ----------------------------
@@ -206,6 +224,10 @@ public class NetworkService extends Service {
 
             case NetworkService.STATE_READY:
                 listener.onReady();
+                break;
+
+            case NetworkService.STATE_WIFI_DISABLED:
+                listener.onWifiDisabled();
                 break;
 
             default:

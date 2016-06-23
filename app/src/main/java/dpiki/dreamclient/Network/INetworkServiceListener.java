@@ -10,4 +10,5 @@ public interface INetworkServiceListener {
     void onReady();
     void onOrderMade();
     void onImageLoaded(int id, byte[] image);
+    void onWifiDisabled();
 }
