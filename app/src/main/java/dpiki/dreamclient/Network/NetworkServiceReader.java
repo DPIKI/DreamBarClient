@@ -94,6 +94,10 @@ public class NetworkServiceReader extends Thread {
                         msg.what = NetworkService.MESSAGE_I_AM_HERE;
                         break;
 
+                    case NetworkService.RESPONSE_CALL:
+                        msg.what = NetworkService.MESSAGE_CALL;
+                        break;
+
                     case NetworkService.RESPONSE_IMAGE:
                     case NetworkService.RESPONSE_NO_IMAGE:
                         msg.what = NetworkService.MESSAGE_IMAGE_LOADED;
@@ -231,6 +235,5 @@ public class NetworkServiceReader extends Thread {
                 throw new IOException();
             readBytes += readNow;
         }
-
     }
 }

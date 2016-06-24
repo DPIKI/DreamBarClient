@@ -32,6 +32,7 @@ public abstract class BaseMessageProcessor implements IMessageProcessor {
     @Override public void onWifiEnabled(Message msg) {}
     @Override public void onWifiDisabled(Message msg) {}
     @Override public void onCheckWifi(Message msg) {}
+    @Override public void onCall(Message msg) {}
 
     protected void sendMessageToHandler(int message) {
         Message msg = mHandler.obtainMessage();

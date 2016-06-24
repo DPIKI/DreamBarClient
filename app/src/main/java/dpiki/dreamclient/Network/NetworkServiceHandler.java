@@ -113,6 +113,10 @@ public class NetworkServiceHandler extends Handler {
                 processor.onWifiEnabled(message);
                 break;
 
+            case NetworkService.MESSAGE_CALL:
+                processor.onCall(message);
+                break;
+
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:
                 clearResources();
                 changeState(new DisconnectedMessageProcessor(this),

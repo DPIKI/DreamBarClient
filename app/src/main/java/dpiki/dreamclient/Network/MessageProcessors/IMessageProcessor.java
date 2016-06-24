@@ -27,4 +27,5 @@ public interface IMessageProcessor {
     void onWifiEnabled(Message msg);
     void onWifiDisabled(Message msg);
     void onCheckWifi(Message msg);
+    void onCall(Message msg);
 }

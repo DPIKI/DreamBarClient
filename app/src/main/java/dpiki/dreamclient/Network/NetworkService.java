@@ -47,6 +47,7 @@ public class NetworkService extends Service {
     public static final int MESSAGE_WIFI_DISABLED = 16;
     public static final int MESSAGE_WIFI_ENABLED = 17;
     public static final int MESSAGE_WIFI_CHECK = 18;
+    public static final int MESSAGE_CALL = 19;
 
     // Состояния
     public static final int STATE_DISCONNECTED = 0;
@@ -82,6 +83,7 @@ public class NetworkService extends Service {
     public static final int RESPONSE_I_AM_HERE = 11;
     public static final int RESPONSE_IMAGE = 12;
     public static final int RESPONSE_NO_IMAGE = 13;
+    public static final int RESPONSE_CALL = 14;
 
     private NetworkServiceHandler handler;
     private NetworkServiceBinder binder;
