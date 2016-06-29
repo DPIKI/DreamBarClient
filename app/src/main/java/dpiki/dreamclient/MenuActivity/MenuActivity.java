@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -19,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -51,14 +53,13 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
     private String mSelectedCategory;
     private int mIndexSelectedCategory;
 
+    public RelativeLayout menuLayout;
     public RelativeLayout progressLayout;
-    public DrawerLayout drawerLayout;
     public RelativeLayout wrongPasswordLayout;
     public RelativeLayout disconnectedLayout;
-    public ListView drawerListView;
     public ListView menuNameListView;
-
     public TextView tvTitle;
+    public Spinner spinner;
 
     public EditDialog dialog;
 
@@ -70,22 +71,40 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        tvTitle = (TextView) findViewById(R.id.tv_toolbar_title);
-        drawerListView = (ListView) findViewById(R.id.lv_left_drawer);
         menuNameListView = (ListView) findViewById(R.id.lv_menu_name);
+        menuLayout = (RelativeLayout) findViewById(R.id.menu_layout);
         progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         wrongPasswordLayout = (RelativeLayout) findViewById(R.id.mv_wrong_password_layout);
         disconnectedLayout = (RelativeLayout) findViewById(R.id.mv_disconnected_layout);
+
+        tvTitle = (TextView) findViewById(R.id.tv_toolbar_title);
+        tvTitle.setText("Меню");
+        tvTitle.setVisibility(View.GONE);
+        spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setVisibility(View.VISIBLE);
+
         isServiceConnected = false;
 
         mIndexSelectedCategory = 0;
         mSelectedCategory = "Все категории";
 
-        drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mIndexSelectedCategory = position;
+                mSelectedCategory = mCategories.get(mIndexSelectedCategory);
+                updateMenuEntriesAdapter();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         menuNameListView.setOnItemClickListener(new ListMenuClickListener());
         menuNameListView.setOnItemLongClickListener(new ListMenuLongClickListener());
 
@@ -191,17 +210,6 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         orderToDatabase(entry);
     }
 
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            // selecting category to display
-            mIndexSelectedCategory = position;
-            mSelectedCategory = mCategories.get(mIndexSelectedCategory);
-            updateMenuEntriesAdapter();
-            drawerLayout.closeDrawers();
-        }
-    }
-
     public void onClickTurnServiceOn(View view) {
         sw.setChecked(true);
     }
@@ -266,30 +274,38 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
 
     private void showProgress() {
         progressLayout.setVisibility(View.VISIBLE);
+        tvTitle.setVisibility(View.VISIBLE);
+        menuLayout.setVisibility(View.GONE);
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
-        drawerLayout.setVisibility(View.GONE);
+        spinner.setVisibility(View.GONE);
     }
 
     private void showMenuLayout() {
+        menuLayout.setVisibility(View.VISIBLE);
+        spinner.setVisibility(View.VISIBLE);
+        tvTitle.setVisibility(View.GONE);
         progressLayout.setVisibility(View.GONE);
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
-        drawerLayout.setVisibility(View.VISIBLE);
     }
 
     private void showWrongPassword() {
-        progressLayout.setVisibility(View.GONE);
         wrongPasswordLayout.setVisibility(View.VISIBLE);
+        tvTitle.setVisibility(View.VISIBLE);
+        progressLayout.setVisibility(View.GONE);
+        menuLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
-        drawerLayout.setVisibility(View.GONE);
+        spinner.setVisibility(View.GONE);
     }
 
     private void showDisconnected() {
+        disconnectedLayout.setVisibility(View.VISIBLE);
+        tvTitle.setVisibility(View.VISIBLE);
         progressLayout.setVisibility(View.GONE);
         wrongPasswordLayout.setVisibility(View.GONE);
-        disconnectedLayout.setVisibility(View.VISIBLE);
-        drawerLayout.setVisibility(View.GONE);
+        menuLayout.setVisibility(View.GONE);
+        spinner.setVisibility(View.GONE);
     }
 
     private ArrayList<MenuEntry> readFullListMenuFromDatabase(){
@@ -331,7 +347,6 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
                 }
             }
 
-            // TODO : почему если список по категории пустой то возвращаем все меню?
             if (menuEntriesByCategory.isEmpty()) {
                 menuEntriesByCategory = mFullMenuEntries;
             }
@@ -345,7 +360,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         updateCategoriesAdapter();
 
         mIndexSelectedCategory = getIndexSelectedCategory();
-        drawerListView.setItemChecked(mIndexSelectedCategory, true);
+        spinner.setSelection(mIndexSelectedCategory, true);
     }
 
     private int getIndexSelectedCategory() {
@@ -385,7 +400,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         mCategories = getCategories(mFullMenuEntries);
         ArrayAdapter<String> categoriesAdapter = new ArrayAdapter<>(this,
                 R.layout.activity_menu_drawer_list_item, mCategories);
-        drawerListView.setAdapter(categoriesAdapter);
+        spinner.setAdapter(categoriesAdapter);
         updateSelectedCategory();
     }
 
@@ -400,6 +415,5 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
             }
         }
         mSelectedCategory = selectedCategory;
-        tvTitle.setText(mSelectedCategory);
     }
 }
