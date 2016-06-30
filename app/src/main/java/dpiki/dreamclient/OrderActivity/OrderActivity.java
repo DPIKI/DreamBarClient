@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
@@ -173,6 +174,10 @@ public class OrderActivity extends AppCompatActivity
 
     public void onClickChangePassword(View view) {
         startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+    }
+
+    public void onClickWifiSettings(View view) {
+        startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
     }
 
     void updateAdapter() {

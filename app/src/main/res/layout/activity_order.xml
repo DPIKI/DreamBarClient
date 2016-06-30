@@ -139,9 +139,17 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:text="Включите WiFi"
+                android:text="Нет соединения WiFi"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ov_disabled_wifi_text_view"/>
+            <Button
+                android:text="Настройки WiFi"
+                android:onClick="onClickWifiSettings"
+                android:layout_below="@+id/ov_disabled_wifi_text_view"
+                android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </RelativeLayout>

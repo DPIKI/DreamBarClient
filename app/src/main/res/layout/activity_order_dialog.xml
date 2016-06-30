@@ -24,7 +24,11 @@
         android:text="Продукт #"
         android:layout_alignTop="@+id/ov_dialog_iv_image"
         android:layout_toRightOf="@+id/ov_dialog_iv_image"
-        android:layout_toEndOf="@+id/ov_dialog_iv_image" />
+        android:layout_toEndOf="@+id/ov_dialog_iv_image"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp" />
 
     <TextView
         android:id="@+id/ov_dialog_tv_count"
@@ -51,7 +55,9 @@
             android:text="+"
             android:layout_weight="1"
             android:textSize="50dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/bright_foreground_disabled_material_light"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
 
         <Button
             android:id="@+id/ov_dialog_btn_minus"
@@ -60,8 +66,10 @@
             android:background="@android:color/transparent"
             android:text="-"
             android:layout_weight="1"
-            android:textStyle="bold"
-            android:textSize="50dp" />
+            android:textSize="50dp"
+            android:textColor="@color/bright_foreground_disabled_material_light"
+            android:nestedScrollingEnabled="false"
+            android:textStyle="bold" />
     </TableRow>
 
     <EditText
@@ -75,7 +83,8 @@
         android:layout_alignParentEnd="true"
         android:hint="Заметки"
         android:maxLength="70"
-        android:maxLines="8" />
+        android:maxLines="8"
+        android:singleLine="true" />
 
     <Button
         android:layout_width="100dp"

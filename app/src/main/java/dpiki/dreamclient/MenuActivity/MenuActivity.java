@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +59,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
     public RelativeLayout progressLayout;
     public RelativeLayout wrongPasswordLayout;
     public RelativeLayout disconnectedLayout;
+    public RelativeLayout wifiDisabledLayout;
     public ListView menuNameListView;
     public TextView tvTitle;
     public Spinner spinner;
@@ -80,6 +83,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         progressLayout = (RelativeLayout) findViewById(R.id.menu_progress_bar_layout);
         wrongPasswordLayout = (RelativeLayout) findViewById(R.id.mv_wrong_password_layout);
         disconnectedLayout = (RelativeLayout) findViewById(R.id.mv_disconnected_layout);
+        wifiDisabledLayout = (RelativeLayout) findViewById(R.id.mv_wifi_disabled_layout);
 
         tvTitle = (TextView) findViewById(R.id.tv_toolbar_title);
         tvTitle.setText("Меню");
@@ -107,6 +111,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         });
         menuNameListView.setOnItemClickListener(new ListMenuClickListener());
         menuNameListView.setOnItemLongClickListener(new ListMenuLongClickListener());
+        menuNameListView.setHapticFeedbackEnabled(true);
 
         imageDownloadManager = new ImageDownloadManager(getMainLooper());
 
@@ -218,6 +223,10 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
     }
 
+    public void onClickWifiSettings(View view) {
+        startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
+    }
+
     private class ListMenuLongClickListener implements ListView.OnItemLongClickListener{
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -230,6 +239,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
     private class ListMenuClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             OrderEntry entry = makeOrderFromPosition(position);
             orderToDatabase(entry);
         }
@@ -261,6 +271,12 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         }
 
         @Override
+        public void onWifiDisabled() {
+            dialog.hideDialog();
+            viewWifiDisabled();
+        }
+
+        @Override
         public void onReady() {
             showMenuLayout();
             initMenu();
@@ -279,6 +295,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
         spinner.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
     }
 
     private void showMenuLayout() {
@@ -288,6 +305,7 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         progressLayout.setVisibility(View.GONE);
         wrongPasswordLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
     }
 
     private void showWrongPassword() {
@@ -297,11 +315,23 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
         menuLayout.setVisibility(View.GONE);
         disconnectedLayout.setVisibility(View.GONE);
         spinner.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
     }
 
     private void showDisconnected() {
         disconnectedLayout.setVisibility(View.VISIBLE);
         tvTitle.setVisibility(View.VISIBLE);
+        progressLayout.setVisibility(View.GONE);
+        wrongPasswordLayout.setVisibility(View.GONE);
+        menuLayout.setVisibility(View.GONE);
+        spinner.setVisibility(View.GONE);
+        wifiDisabledLayout.setVisibility(View.GONE);
+    }
+
+    private void viewWifiDisabled() {
+        wifiDisabledLayout.setVisibility(View.VISIBLE);
+        tvTitle.setVisibility(View.VISIBLE);
+        disconnectedLayout.setVisibility(View.GONE);
         progressLayout.setVisibility(View.GONE);
         wrongPasswordLayout.setVisibility(View.GONE);
         menuLayout.setVisibility(View.GONE);

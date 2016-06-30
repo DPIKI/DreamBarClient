@@ -76,7 +76,7 @@ public class NetworkServiceWriter extends Thread {
                                         .append(Integer.toString(entry.count))
                                         .append(";")
                                         .append(Integer.toString(entry.numTable))
-                                        .append(";").append(entry.note)
+                                        .append(";").append(entry.note.replace(";", " "))
                                         .append("\n");
                             }
                             strOrder.deleteCharAt(strOrder.length() - 1);

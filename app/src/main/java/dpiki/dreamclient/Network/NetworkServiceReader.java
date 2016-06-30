@@ -139,7 +139,7 @@ public class NetworkServiceReader extends Thread {
             int msgSize = byteBuffer.getInt(0);
 
             // Если размер пакета больше 100 Мб или меньше нуля то скорее всего произошла ошибка
-            if (msgSize < 4 || msgSize > 1000000)
+            if (msgSize < 4 || msgSize > 100000000)
                 throw new IOException();
 
             // Выделяем буфер этого размера и читаем в него данные

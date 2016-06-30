@@ -5,7 +5,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <include layout="@layout/toolbar" />
+
         <RelativeLayout
             android:visibility="gone"
             android:id="@+id/menu_layout"
@@ -14,10 +16,11 @@
 
             <ListView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/lv_menu_name"
                 android:layout_gravity="center"
-                android:longClickable="false" />
+                android:longClickable="false"
+                android:footerDividersEnabled="true" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -83,6 +86,28 @@
                 android:text="ИЗМЕНИТЬ"
                 android:onClick="onClickChangePassword"
                 android:layout_below="@+id/mv_wrong_password_text_view"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/mv_wifi_disabled_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:text="Включите WiFi"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/mv_disabled_wifi_text_view"/>
+            <Button
+                android:text="Нет соединения WiFi"
+                android:onClick="onClickWifiSettings"
+                android:layout_below="@+id/mv_disabled_wifi_text_view"
                 android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

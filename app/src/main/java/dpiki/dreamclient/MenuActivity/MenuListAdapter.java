@@ -76,7 +76,7 @@ public class MenuListAdapter extends BaseAdapter{
         MenuEntry menuEntry = getMenuEntry(position);
         viewHolder.tvItemName.setText(menuEntry.name);
         viewHolder.picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(menuEntry.id))
-                .error(R.drawable.ic_action_new)
+                .error(android.R.drawable.ic_menu_gallery)
                 .into(viewHolder.ivImage);
 
         return convertView;
