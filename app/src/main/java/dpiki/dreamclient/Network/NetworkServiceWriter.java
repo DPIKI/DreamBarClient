@@ -19,7 +19,7 @@ import dpiki.dreamclient.OrderActivity.OrderEntry;
 /**
  * Created by User on 30.03.2016.
  */
-public class NetworkServiceWriter extends Thread {
+public class NetworkServiceWriter implements Runnable {
     public static final String KEY_ACTION_CODE = "action_code";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_NAME = "name";

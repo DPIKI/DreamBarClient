@@ -3,6 +3,7 @@ package dpiki.dreamclient.Network;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
@@ -34,12 +35,23 @@ public class NetworkServiceHandler extends Handler {
 
     private Handler mUiHandler;
 
+    private HandlerThread writerThread;
+    public Handler writerHandler;
+
     NetworkServiceHandler(Looper looper, Context ctx, NetworkServiceSettings stngs, Handler uiHandler) {
         super(looper);
         context = ctx;
         settings = stngs;
         processor = new DisconnectedMessageProcessor(this);
         mUiHandler = uiHandler;
+
+        writerThread = new HandlerThread("writerThread");
+        writerThread.start();
+        Looper looper1 = writerThread.getLooper();
+        while (looper1 == null)
+            looper1 = writerThread.getLooper();
+
+        writerHandler = new Handler(looper1);
     }
 
     @Override
@@ -119,6 +131,9 @@ public class NetworkServiceHandler extends Handler {
 
             case NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD:
                 clearResources();
+
+                writerThread.quit();
+
                 changeState(new DisconnectedMessageProcessor(this),
                         NetworkService.MESSAGE_STOP_MAIN_SERVICE_THREAD);
                 getLooper().quit();

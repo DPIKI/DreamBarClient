@@ -42,7 +42,7 @@ public class MenuWaitMessageProcessor extends LostConnectable {
 
         // Запускаем поток, который выведет сообщение в сеть
         NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
-        writer.start();
+        mHandler.writerHandler.post(writer);
 
         Log.d("MWMP", "Menu got");
     }

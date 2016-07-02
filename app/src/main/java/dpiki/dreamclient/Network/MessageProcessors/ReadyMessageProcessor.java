@@ -39,7 +39,7 @@ public class ReadyMessageProcessor extends ImageLoadable {
 
         // Выводим их
         NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
-        writer.start();
+        mHandler.writerHandler.post(writer);
 
         Log.d("RMP", "Order sent");
     }

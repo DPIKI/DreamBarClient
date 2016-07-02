@@ -43,7 +43,7 @@ public class SyncWaitMessageProcessor extends LostConnectable {
 
         // Выводим их
         NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
-        writer.start();
+        mHandler.writerHandler.post(writer);
 
         Log.d("SWMP", "Sync invalid hash");
     }

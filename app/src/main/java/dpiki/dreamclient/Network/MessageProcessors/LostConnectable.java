@@ -41,7 +41,7 @@ public abstract class LostConnectable extends WifiDisableble {
 
             NetworkServiceWriter writer =
                     new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
-            writer.start();
+            mHandler.writerHandler.post(writer);
 
             mHandler.mTimerTicks++;
 

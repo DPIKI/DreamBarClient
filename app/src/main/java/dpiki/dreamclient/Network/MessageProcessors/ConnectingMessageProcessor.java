@@ -55,7 +55,7 @@ public class ConnectingMessageProcessor extends WifiDisableble {
 
             // Запускаем поток
             NetworkServiceWriter writer = new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
-            writer.start();
+            mHandler.writerHandler.post(writer);
 
             mHandler.mTimerTicks = 0;
             sendMessageToHandler(NetworkService.MESSAGE_TICK, 1000);

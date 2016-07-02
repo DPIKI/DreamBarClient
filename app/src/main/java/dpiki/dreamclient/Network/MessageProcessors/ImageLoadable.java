@@ -35,7 +35,7 @@ public abstract class ImageLoadable extends LostConnectable {
         // Отправляем
         NetworkServiceWriter writer =
                 new NetworkServiceWriter(mHandler.context, mHandler.socket, bundle);
-        writer.start();
+        mHandler.writerHandler.post(writer);
 
         Log.d("ImageLoadable", "onSendLoadImageRequest");
     }
