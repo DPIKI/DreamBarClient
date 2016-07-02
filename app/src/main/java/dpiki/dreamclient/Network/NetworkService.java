@@ -1,10 +1,13 @@
 package dpiki.dreamclient.Network;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,12 +15,16 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.SyncStateContract;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+import dpiki.dreamclient.OrderActivity.OrderActivity;
 import dpiki.dreamclient.R;
 
 public class NetworkService extends Service {
@@ -174,7 +181,7 @@ public class NetworkService extends Service {
 
         // Говорим этому потоку создать соединение, если пользователь разрешил
         if (settings.isServiceRunning)
-            sendConnectMessage();
+            connect();
     }
 
     @Override
@@ -251,6 +258,28 @@ public class NetworkService extends Service {
 
     // -------------- Support -------------------
 
+    private void startFg() {
+        Intent intent = new Intent(this, OrderActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Notification.Builder builder = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.ic_dreamicon)
+                .setContentText("Сервис Dream Bar")
+                .setContentTitle("Dream Bar")
+                .setTicker("Dream Bar")
+                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(),
+                        R.drawable.ic_dreamicon))
+                .setOngoing(true)
+                .setContentIntent(pendingIntent)
+                .setWhen(System.currentTimeMillis());
+        Notification n = builder.build();
+        startForeground(102, n);
+    }
+
+    private void stopFg() {
+        stopForeground(true);
+    }
+
     private void sendConnectMessage() {
         Message msg = handler.obtainMessage();
         msg.what = MESSAGE_CONNECT;
@@ -267,6 +296,8 @@ public class NetworkService extends Service {
         // Запоминаем, что при следующем запуске надо сразу коннектиться
         settings.isServiceRunning = true;
 
+        startFg();
+
         // Коннектимся
         sendConnectMessage();
 
@@ -276,6 +307,8 @@ public class NetworkService extends Service {
     private void disconnect() {
         // Запоминаем, что при коннектиться при запуске не надо
         settings.isServiceRunning = false;
+
+        stopFg();
 
         // Отключаемся
         sendDisconnectMessage();
