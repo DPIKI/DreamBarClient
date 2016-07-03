@@ -443,9 +443,7 @@ public class OrderActivity extends AppCompatActivity
 
     @Override
     public void onOkButtonClick(OrderEntry entry) {
-        OrderListAdapter adapter = new OrderListAdapter(OrderActivity.this,
-                        orderEntries);
-        listView.setAdapter(adapter);
+        orderListAdapter.notifyDataSetChanged();
 
         DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
         SQLiteDatabase db = helper.getWritableDatabase();
