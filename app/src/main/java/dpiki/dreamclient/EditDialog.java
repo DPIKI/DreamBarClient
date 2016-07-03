@@ -109,7 +109,7 @@ public class EditDialog {
         tvDialogCount.setText("Количество: " + Integer.toString(currentOrderEntry.count));
         editDialogNotes.setText(currentOrderEntry.note);
         picasso.load(CustomRequestHandler.SCHEME + "://" + Integer.toString(entry.id))
-                .error(R.drawable.ic_action_new)
+                .error(android.R.drawable.ic_menu_gallery)
                 .into(ivImage);
         dialog.show();
     }

@@ -5,7 +5,7 @@
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="match_parent" >
 
     <ImageView
         android:id="@+id/ov_dialog_iv_image"
@@ -19,16 +19,15 @@
     <TextView
         android:id="@+id/ov_dialog_tv_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Продукт #"
         android:layout_alignTop="@+id/ov_dialog_iv_image"
         android:layout_toRightOf="@+id/ov_dialog_iv_image"
-        android:layout_toEndOf="@+id/ov_dialog_iv_image"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_above="@+id/ov_dialog_tv_count"
+        android:layout_alignRight="@+id/tableRow2"
+        android:layout_alignEnd="@+id/tableRow2"
+        android:layout_margin="10dp" />
 
     <TextView
         android:id="@+id/ov_dialog_tv_count"

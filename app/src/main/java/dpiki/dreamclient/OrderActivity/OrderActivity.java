@@ -247,20 +247,27 @@ public class OrderActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 String strTableNum = editStDialogTable.getText().toString();
-                int tableNum = Integer.parseInt(strTableNum);
-
-                DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
-                SQLiteDatabase db = helper.getWritableDatabase();
-                try {
-                    DatabaseOrderWorker.updateTable(db, tableNum);
+                if(strTableNum.isEmpty()){
+                    editStDialogTable.setError("Не выбран стол");
                 }
-                finally {
-                    db.close();
-                }
+                else {
+                    try {
+                        int tableNum = Integer.parseInt(strTableNum);
+                        DatabaseHelper helper = new DatabaseHelper(OrderActivity.this);
+                        SQLiteDatabase db = helper.getWritableDatabase();
+                        try {
+                            DatabaseOrderWorker.updateTable(db, tableNum);
+                        } finally {
+                            db.close();
+                        }
+                        networkService.sendOrder();
+                        viewProgress("Отправляем заказ...");
+                        selectTableDialog.dismiss();
 
-                networkService.sendOrder();
-                viewProgress("Отправляем заказ...");
-                selectTableDialog.dismiss();
+                    }catch (Exception e){
+                        editStDialogTable.setError("Неверный формат номера стола");
+                    }
+                }
             }
         });
 

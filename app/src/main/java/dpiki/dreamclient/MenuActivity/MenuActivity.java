@@ -354,13 +354,15 @@ public class MenuActivity extends AppCompatActivity implements IEditDialogCallba
     private ArrayList<String> getCategories(ArrayList<MenuEntry> fullMenuEntries){
         TreeSet<String> categories = new TreeSet<>();
 
-        categories.add("Все категории");
-
         for (MenuEntry i : fullMenuEntries) {
             categories.add(i.category);
         }
 
-        return new ArrayList<>(categories);
+        ArrayList<String> cat = new ArrayList<>();
+        cat.add("Все категории");
+        cat.addAll(categories);
+
+        return new ArrayList<>(cat);
     }
 
     private ArrayList<MenuEntry> getMenuEntriesByCategory(ArrayList<MenuEntry> fullMenuEntries) {
