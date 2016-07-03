@@ -102,6 +102,10 @@ public class OrderActivity extends AppCompatActivity
         Intent intent = new Intent(this, NetworkService.class);
         bindService(intent, connection, BIND_AUTO_CREATE);
 
+        SharedPreferences pref =
+                            PreferenceManager.getDefaultSharedPreferences(this);
+        sw.setChecked(pref.getBoolean(getString(R.string.s_pref_key_running), false));
+
         Log.d("OrderActivity", "onResume");
     }
 

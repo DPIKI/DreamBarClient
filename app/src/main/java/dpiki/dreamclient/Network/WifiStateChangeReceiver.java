@@ -16,6 +16,10 @@ public class WifiStateChangeReceiver extends BroadcastReceiver {
         mHandler = handler;
     }
 
+    public WifiStateChangeReceiver() {
+        mHandler = null;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("WSCR", "onReceive");
